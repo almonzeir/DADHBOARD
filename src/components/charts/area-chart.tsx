@@ -24,6 +24,26 @@ interface AreaChartProps {
   color?: string;
 }
 
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="rounded-lg border bg-background p-2 shadow-sm">
+        <div className="grid grid-cols-2 gap-2">
+          <div className="flex flex-col">
+            <span className="text-[0.70rem] uppercase text-muted-foreground">
+              {label}
+            </span>
+            <span className="font-bold text-muted-foreground">
+              {payload[0].value}
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
+
 export function AreaChart({
   title,
   description,
@@ -77,15 +97,7 @@ export function AreaChart({
                 axisLine={false}
                 className="text-muted-foreground"
               />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: 'hsl(var(--card))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-                }}
-                labelStyle={{ color: 'hsl(var(--foreground))' }}
-              />
+              <Tooltip content={<CustomTooltip />} />
               <Area
                 type="monotone"
                 dataKey={dataKey}

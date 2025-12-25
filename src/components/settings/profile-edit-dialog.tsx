@@ -41,6 +41,7 @@ export function ProfileEditDialog({
 
   useEffect(() => {
     if (open && profile) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFullName(profile.full_name || '');
       setPhone(profile.phone || '');
       setAvatarPreview(profile.avatar_url || null);

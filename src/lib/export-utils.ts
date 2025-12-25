@@ -116,6 +116,11 @@ export function generatePDFReport(options: PDFReportOptions): void {
     yPosition,
     { align: 'center' }
   );
+  yPosition += 5;
+
+  // Separator Line
+  doc.setDrawColor(200);
+  doc.line(margin, yPosition, pageWidth - margin, yPosition);
   yPosition += 12;
 
   // Summary section
@@ -151,7 +156,7 @@ export function generatePDFReport(options: PDFReportOptions): void {
     const tableHeaders = columns.map(col => col.label);
     const tableData = data.map(item =>
       columns.map(col => {
-        let value = item[col.key];
+        const value = item[col.key];
         if (value === null || value === undefined) return '';
         if (typeof value === 'number') {
           // Format numbers
@@ -159,6 +164,14 @@ export function generatePDFReport(options: PDFReportOptions): void {
             return `RM ${value.toLocaleString('en-MY', { minimumFractionDigits: 2 })}`;
           }
           return value.toLocaleString();
+        }
+        // Format dates if the key suggests it and it's a valid date string
+        if ((col.key.includes('date') || col.key.includes('created_at')) && typeof value === 'string' && !isNaN(Date.parse(value))) {
+            try {
+                return format(new Date(value), 'yyyy-MM-dd');
+            } catch {
+                return String(value);
+            }
         }
         return String(value);
       })
@@ -218,14 +231,14 @@ export function generatePDFReport(options: PDFReportOptions): void {
 // ============================================
 
 export const TRIPS_REPORT_COLUMNS = [
-  { key: 'title', label: 'Trip Title', width: 50 },
+  { key: 'title', label: 'Trip Title', width: 40 },
   { key: 'status', label: 'Status', width: 20 },
-  { key: 'start_date', label: 'Start Date', width: 25 },
-  { key: 'end_date', label: 'End Date', width: 25 },
-  { key: 'districts', label: 'Districts', width: 35 },
-  { key: 'no_traveler', label: 'Travelers', width: 20 },
+  { key: 'start_date', label: 'Start', width: 25 },
+  { key: 'districts', label: 'Districts', width: 30 },
+  { key: 'no_traveler', label: 'Pax', width: 15 },
   { key: 'visitor_segment', label: 'Segment', width: 25 },
   { key: 'budget', label: 'Budget (RM)', width: 25 },
+  { key: 'created_at', label: 'Date Created', width: 25 },
 ];
 
 export const PLACES_REPORT_COLUMNS = [

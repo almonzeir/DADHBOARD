@@ -19,6 +19,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { getInitials, getRoleBadgeColor, getRoleDisplayName } from '@/lib/utils';
 import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
+import { cn } from '@/lib/utils';
 
 export function Header() {
   const { admin, logout } = useAuth();
@@ -27,6 +28,7 @@ export function Header() {
 
   // Prevent hydration mismatch
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
@@ -117,6 +119,3 @@ export function Header() {
     </header>
   );
 }
-
-// Add cn import at the top
-import { cn } from '@/lib/utils';

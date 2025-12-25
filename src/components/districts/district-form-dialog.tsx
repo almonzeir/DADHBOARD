@@ -44,10 +44,21 @@ export function DistrictFormDialog({
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const resetForm = () => {
+    setName('');
+    setNameMalay('');
+    setDescription('');
+    setImageUrl('');
+    setImageFile(null);
+    setImagePreview(null);
+    setErrors({});
+  };
+
   // Reset form when dialog opens/closes or district changes
   useEffect(() => {
     if (open) {
       if (mode === 'edit' && district) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setName(district.name || '');
         setNameMalay(district.name_ms || '');
         setDescription(district.description || '');
@@ -58,16 +69,6 @@ export function DistrictFormDialog({
       }
     }
   }, [open, district, mode]);
-
-  const resetForm = () => {
-    setName('');
-    setNameMalay('');
-    setDescription('');
-    setImageUrl('');
-    setImageFile(null);
-    setImagePreview(null);
-    setErrors({});
-  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

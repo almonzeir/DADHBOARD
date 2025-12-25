@@ -3,7 +3,7 @@
 'use client';
 
 import { useAuth } from '@/hooks/use-auth';
-import { useDashboardStats, useTripsByMonth, useTripsByDistrict, useTopPlaces } from '@/hooks/use-analytics';
+import { useDashboardStats, useTripsByMonth, useTripsByDistrict, useTopPlaces, useAdvancedAnalytics } from '@/hooks/use-analytics';
 import { StatsCard } from '@/components/charts/stats-card';
 import { AreaChart } from '@/components/charts/area-chart';
 import { BarChart } from '@/components/charts/bar-chart';
@@ -27,16 +27,23 @@ import Link from 'next/link';
 export default function DashboardPage() {
   const { admin } = useAuth();
   const { stats, isLoading: statsLoading } = useDashboardStats();
+  const { data: advancedStats, isLoading: advancedLoading } = useAdvancedAnalytics();
   const { data: tripsByMonth, isLoading: tripsMonthLoading } = useTripsByMonth();
   const { data: tripsByDistrict, isLoading: tripsDistrictLoading } = useTripsByDistrict();
   const { data: topPlaces, isLoading: topPlacesLoading } = useTopPlaces(5);
+
+  // Safe access to comparison data
+  const comparison = advancedStats?.comparison || {
+    travelersChange: 0,
+    tripsChange: 0
+  };
 
   const statsCards = [
     {
       title: 'Total Tourists',
       value: stats?.totalTourists?.toLocaleString() || '0',
-      change: '+12.5% from last month',
-      changeType: 'positive' as const,
+      change: `${comparison.travelersChange > 0 ? '+' : ''}${comparison.travelersChange.toFixed(1)}% from last period`,
+      changeType: comparison.travelersChange >= 0 ? 'positive' as const : 'negative' as const,
       icon: Users,
     },
     {
@@ -49,8 +56,8 @@ export default function DashboardPage() {
     {
       title: 'Total Trips',
       value: stats?.totalTrips?.toLocaleString() || '0',
-      change: `${stats?.completedTrips || 0} completed`,
-      changeType: 'positive' as const,
+      change: `${comparison.tripsChange > 0 ? '+' : ''}${comparison.tripsChange.toFixed(1)}% from last period`,
+      changeType: comparison.tripsChange >= 0 ? 'positive' as const : 'negative' as const,
       icon: Route,
     },
     {
@@ -61,6 +68,8 @@ export default function DashboardPage() {
       icon: Star,
     },
   ];
+
+  const isLoading = statsLoading || advancedLoading;
 
   return (
     <div className="space-y-6">
@@ -89,7 +98,7 @@ export default function DashboardPage() {
             change={stat.change}
             changeType={stat.changeType}
             icon={stat.icon}
-            isLoading={statsLoading}
+            isLoading={isLoading}
           />
         ))}
       </div>

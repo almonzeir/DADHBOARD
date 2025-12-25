@@ -79,10 +79,34 @@ export function PlaceFormDialog({
   
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const resetForm = () => {
+    setName('');
+    setNameMalay('');
+    setDescription('');
+    setDistrictId('');
+    setCategory('other');
+    setAddress('');
+    setLatitude('');
+    setLongitude('');
+    setOpeningHours('');
+    setEntranceFee('');
+    setAverageDuration('');
+    setContactPhone('');
+    setContactEmail('');
+    setWebsite('');
+    setIsActive(true);
+    setIsHiddenGem(false);
+    setImageUrl('');
+    setImageFile(null);
+    setImagePreview(null);
+    setErrors({});
+  };
+
   // Reset form when dialog opens/closes or place changes
   useEffect(() => {
     if (open) {
       if (mode === 'edit' && place) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setName(place.name || '');
         setNameMalay(place.name_ms || '');
         setDescription(place.description || '');
@@ -106,29 +130,6 @@ export function PlaceFormDialog({
       }
     }
   }, [open, place, mode]);
-
-  const resetForm = () => {
-    setName('');
-    setNameMalay('');
-    setDescription('');
-    setDistrictId('');
-    setCategory('other');
-    setAddress('');
-    setLatitude('');
-    setLongitude('');
-    setOpeningHours('');
-    setEntranceFee('');
-    setAverageDuration('');
-    setContactPhone('');
-    setContactEmail('');
-    setWebsite('');
-    setIsActive(true);
-    setIsHiddenGem(false);
-    setImageUrl('');
-    setImageFile(null);
-    setImagePreview(null);
-    setErrors({});
-  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

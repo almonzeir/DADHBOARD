@@ -26,15 +26,35 @@ interface BarChartProps {
 }
 
 const COLORS = [
-  'hsl(142, 76%, 45%)',
-  'hsl(160, 84%, 39%)',
-  'hsl(82, 84%, 45%)',
-  'hsl(43, 74%, 49%)',
-  'hsl(27, 87%, 54%)',
-  'hsl(187, 85%, 43%)',
-  'hsl(262, 83%, 58%)',
-  'hsl(330, 81%, 60%)',
+  '#22c55e', // green-500
+  '#16a34a', // green-600
+  '#84cc16', // lime-500
+  '#65a30d', // lime-600
+  '#10b981', // emerald-500
+  '#059669', // emerald-600
+  '#14b8a6', // teal-500
+  '#0d9488', // teal-600
 ];
+
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="rounded-lg border bg-background p-2 shadow-sm">
+        <div className="grid grid-cols-2 gap-2">
+          <div className="flex flex-col">
+            <span className="text-[0.70rem] uppercase text-muted-foreground">
+              {label}
+            </span>
+            <span className="font-bold text-muted-foreground">
+              {payload[0].value}
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
 
 export function BarChart({
   title,
@@ -85,15 +105,7 @@ export function BarChart({
                 tickLine={false}
                 axisLine={false}
               />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: 'hsl(var(--card))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-                }}
-                labelStyle={{ color: 'hsl(var(--foreground))' }}
-              />
+              <Tooltip content={<CustomTooltip />} />
               <Bar dataKey={dataKey} radius={[4, 4, 0, 0]}>
                 {data.map((_, index) => (
                   <Cell 
