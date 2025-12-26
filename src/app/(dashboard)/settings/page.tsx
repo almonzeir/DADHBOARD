@@ -34,7 +34,7 @@ import { formatDate } from '@/lib/utils';
 import { ADMIN_ROLES } from '@/lib/constants';
 
 export default function SettingsPage() {
-  const { admin, refreshAdmin } = useAuth();
+  const { admin } = useAuth();
   const { data: profile, isLoading: profileLoading, refetch: refetchProfile } = useProfile();
   const { data: activities, isLoading: activitiesLoading } = useActivityLog(10);
   const { update, uploadAvatarImage, updatePassword, isLoading: mutationLoading } = useProfileMutations();
@@ -61,7 +61,6 @@ export default function SettingsPage() {
       toast.success('Profile updated successfully');
       setEditDialogOpen(false);
       refetchProfile();
-      refreshAdmin();
     } else {
       toast.error(result.error || 'Failed to update profile');
     }
@@ -131,9 +130,9 @@ export default function SettingsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold">Settings</h1>
-        <p className="text-muted-foreground mt-1">
-          Manage your account settings and preferences
+        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">Settings</h1>
+        <p className="text-muted-foreground mt-1 text-sm">
+          Manage your account settings, security, and preferences
         </p>
       </div>
 

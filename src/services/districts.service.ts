@@ -71,9 +71,17 @@ export async function getDistrictStats(districtId: string): Promise<{
     .from('travel_plans')
     .select('districts');
 
-  const tripsCount = trips?.filter(trip => 
-    trip.districts && Array.isArray(trip.districts) && trip.districts.includes(districtId)
-  ).length || 0;
+  const tripsCount = trips?.filter(trip => {
+    if (!trip.districts) return false;
+    try {
+      const districtIds = typeof trip.districts === 'string'
+        ? JSON.parse(trip.districts)
+        : trip.districts;
+      return Array.isArray(districtIds) && districtIds.includes(districtId);
+    } catch (e) {
+      return false;
+    }
+  }).length || 0;
 
   return {
     placesCount: placesCount || 0,
@@ -91,7 +99,7 @@ export async function getDistrictsWithStats(): Promise<(District & {
   tripsCount: number;
 })[]> {
   const districts = await getDistricts();
-  
+
   const districtsWithStats = await Promise.all(
     districts.map(async (district) => {
       const stats = await getDistrictStats(district.id);

@@ -59,13 +59,13 @@ export function ApproveDialog({
               <span className="font-semibold text-lg">{admin.full_name}</span>
               <Badge variant="secondary">Pending</Badge>
             </div>
-            
+
             <div className="space-y-2 text-sm">
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Mail className="h-4 w-4" />
                 <span>{admin.email}</span>
               </div>
-              
+
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Building2 className="h-4 w-4" />
                 <span>{admin.organization_name || 'N/A'}</span>
@@ -85,12 +85,12 @@ export function ApproveDialog({
             </div>
 
             <div className="text-xs text-muted-foreground pt-2 border-t">
-              Requested on {formatDate(admin.requested_at || admin.created_at)}
+              Requested on {formatDate(admin.created_at)}
             </div>
           </div>
 
           <p className="text-sm text-muted-foreground">
-            By approving, this user will gain <strong>Organization Admin</strong> privileges 
+            By approving, this user will gain <strong>Organization Admin</strong> privileges
             and can manage their own staff members.
           </p>
         </div>

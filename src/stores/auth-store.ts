@@ -28,19 +28,21 @@ export const useAuthStore = create<AuthState>()(
           admin,
           isAuthenticated: isAuth,
           isLoading: false,
+          isHydrated: true, // Also set hydrated when admin is set
         });
       },
       setLoading: (loading) => {
         set({ isLoading: loading });
       },
       setHydrated: (hydrated) => {
-        set({ isHydrated: hydrated });
+        set({ isHydrated: hydrated, isLoading: false });
       },
       logout: () => {
         set({
           admin: null,
           isAuthenticated: false,
           isLoading: false,
+          isHydrated: true, // Keep hydrated true after logout
         });
       },
     }),
@@ -51,6 +53,9 @@ export const useAuthStore = create<AuthState>()(
         admin: state.admin,
       }),
       onRehydrateStorage: () => (state, error) => {
+        if (error) {
+          console.error('Auth rehydration error:', error);
+        }
         if (state) {
           const isAuth = !!state.admin && state.admin.is_approved === true && state.admin.role !== 'pending';
           state.isAuthenticated = isAuth;
@@ -61,3 +66,14 @@ export const useAuthStore = create<AuthState>()(
     }
   )
 );
+
+// Force hydration check on client side
+if (typeof window !== 'undefined') {
+  // Small delay to ensure store is initialized
+  setTimeout(() => {
+    const state = useAuthStore.getState();
+    if (!state.isHydrated) {
+      useAuthStore.setState({ isHydrated: true, isLoading: false });
+    }
+  }, 500);
+}

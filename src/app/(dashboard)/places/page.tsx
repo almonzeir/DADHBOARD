@@ -30,23 +30,23 @@ export default function PlacesPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { admin } = useAuth();
-  
+
   // Get initial filters from URL
   const initialDistrictId = searchParams.get('district') || '';
-  
+
   // State
   const [searchQuery, setSearchQuery] = useState('');
-const [districtFilter, setDistrictFilter] = useState(initialDistrictId || "all");
-const [categoryFilter, setCategoryFilter] = useState<string>("all");
-const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [districtFilter, setDistrictFilter] = useState(initialDistrictId || "all");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
 
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  
+
   // Data hooks
   const { data: allPlaces, isLoading, refetch } = usePlaces();
   const { data: districts } = useDistricts();
   const { create, update, remove, toggleStatus, uploadImage, isLoading: mutationLoading } = usePlaceMutations();
-  
+
   // Dialog states
   const [formDialogOpen, setFormDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -56,39 +56,39 @@ const [statusFilter, setStatusFilter] = useState<string>("all");
   const canEdit = admin?.role === 'super_admin' || admin?.role === 'org_admin';
 
   // Filter places
-const filteredPlaces = useMemo(() => {
-  return allPlaces.filter((place) => {
-    // Search filter
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      const matchesSearch =
-        place.name.toLowerCase().includes(query) ||
-        place.name_ms?.toLowerCase().includes(query) ||
-        place.description?.toLowerCase().includes(query);
+  const filteredPlaces = useMemo(() => {
+    return allPlaces.filter((place) => {
+      // Search filter
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        const matchesSearch =
+          place.name.toLowerCase().includes(query) ||
+          place.name_ms?.toLowerCase().includes(query) ||
+          place.description?.toLowerCase().includes(query);
 
-      if (!matchesSearch) return false;
-    }
+        if (!matchesSearch) return false;
+      }
 
-    // District filter
-    if (districtFilter !== "all" && place.district_id !== districtFilter) {
-      return false;
-    }
+      // District filter
+      if (districtFilter !== "all" && place.district_id !== districtFilter) {
+        return false;
+      }
 
-    // Category filter
-    if (categoryFilter !== "all" && place.category !== categoryFilter) {
-      return false;
-    }
+      // Category filter
+      if (categoryFilter !== "all" && place.category !== categoryFilter) {
+        return false;
+      }
 
-    // Status filter
-    if (statusFilter !== "all") {
-      if (statusFilter === "active" && !place.is_active) return false;
-      if (statusFilter === "inactive" && place.is_active) return false;
-      if (statusFilter === "hidden_gem" && !place.is_hidden_gem) return false;
-    }
+      // Status filter
+      if (statusFilter !== "all") {
+        if (statusFilter === "active" && !place.is_active) return false;
+        if (statusFilter === "inactive" && place.is_active) return false;
+        if (statusFilter === "hidden_gem" && !place.is_hidden_gem) return false;
+      }
 
-    return true;
-  });
-}, [allPlaces, searchQuery, districtFilter, categoryFilter, statusFilter]);
+      return true;
+    });
+  }, [allPlaces, searchQuery, districtFilter, categoryFilter, statusFilter]);
 
   // Handlers
   const handleCreate = () => {
@@ -177,12 +177,12 @@ const filteredPlaces = useMemo(() => {
     }
   };
 
-const clearFilters = () => {
-  setSearchQuery('');
-  setDistrictFilter('all');
-  setCategoryFilter('all');
-  setStatusFilter('all');
-};
+  const clearFilters = () => {
+    setSearchQuery('');
+    setDistrictFilter('all');
+    setCategoryFilter('all');
+    setStatusFilter('all');
+  };
 
 
   const hasActiveFilters = searchQuery || districtFilter || categoryFilter || statusFilter;
@@ -192,15 +192,15 @@ const clearFilters = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold">Places</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage attractions and points of interest
+          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">Places</h1>
+          <p className="text-muted-foreground mt-1 text-sm">
+            Manage attractions and points of interest across Kedah
           </p>
         </div>
         {canEdit && (
-          <Button onClick={handleCreate}>
+          <Button onClick={handleCreate} className="h-10 px-5 shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-shadow">
             <Plus className="h-4 w-4 mr-2" />
-            Add Place
+            Add New Place
           </Button>
         )}
       </div>
@@ -242,47 +242,47 @@ const clearFilters = () => {
 
         {/* Filter Dropdowns */}
         <div className="flex flex-wrap gap-2">
-<Select value={districtFilter} onValueChange={setDistrictFilter}>
-  <SelectTrigger className="w-[180px]">
-    <SelectValue placeholder="All Districts" />
-  </SelectTrigger>
-  <SelectContent>
-    <SelectItem value="all">All Districts</SelectItem>
-    {districts.map((district) => (
-      <SelectItem key={district.id} value={district.id}>
-        {district.name}
-      </SelectItem>
-    ))}
-  </SelectContent>
-</Select>
+          <Select value={districtFilter} onValueChange={setDistrictFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="All Districts" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Districts</SelectItem>
+              {districts.map((district) => (
+                <SelectItem key={district.id} value={district.id}>
+                  {district.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
 
-<Select value={categoryFilter} onValueChange={setCategoryFilter}>
-  <SelectTrigger className="w-[180px]">
-    <SelectValue placeholder="All Categories" />
-  </SelectTrigger>
-  <SelectContent>
-    <SelectItem value="all">All Categories</SelectItem>
-    {PLACE_CATEGORIES.map((cat) => (
-      <SelectItem key={cat.value} value={cat.value}>
-        {cat.label}
-      </SelectItem>
-    ))}
-  </SelectContent>
-</Select>
+          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="All Categories" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Categories</SelectItem>
+              {PLACE_CATEGORIES.map((cat) => (
+                <SelectItem key={cat.value} value={cat.value}>
+                  {cat.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
 
-<Select value={statusFilter} onValueChange={setStatusFilter}>
-  <SelectTrigger className="w-[150px]">
-    <SelectValue placeholder="All Status" />
-  </SelectTrigger>
-  <SelectContent>
-    <SelectItem value="all">All Status</SelectItem>
-    <SelectItem value="active">Active</SelectItem>
-    <SelectItem value="inactive">Inactive</SelectItem>
-    <SelectItem value="hidden_gem">Hidden Gems</SelectItem>
-  </SelectContent>
-</Select>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-[150px]">
+              <SelectValue placeholder="All Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="inactive">Inactive</SelectItem>
+              <SelectItem value="hidden_gem">Hidden Gems</SelectItem>
+            </SelectContent>
+          </Select>
 
 
           {hasActiveFilters && (
@@ -296,13 +296,13 @@ const clearFilters = () => {
 
       {/* Results Summary */}
       {!isLoading && (
-        <div className="flex items-center gap-2">
-          <Badge variant="secondary">
+        <div className="flex items-center gap-3">
+          <Badge variant="secondary" className="px-3 py-1 font-semibold">
             {filteredPlaces.length} place{filteredPlaces.length !== 1 ? 's' : ''}
           </Badge>
           {hasActiveFilters && (
-            <span className="text-sm text-muted-foreground">
-              (filtered from {allPlaces.length} total)
+            <span className="text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-md">
+              filtered from {allPlaces.length} total
             </span>
           )}
         </div>

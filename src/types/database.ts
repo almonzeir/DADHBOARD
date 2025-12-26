@@ -40,6 +40,7 @@ export interface AdminUser {
   approved_at?: string | null;
   request_reason?: string | null;
   last_login_at?: string | null;
+  requested_at?: string | null;
   created_at: string;
   updated_at?: string | null;
 }
@@ -56,6 +57,9 @@ export interface DashboardStats {
   pendingApprovals: number;
   avgRating: number;
   totalRevenue: number;
+  touristsChange?: number;
+  tripsChange?: number;
+  revenueChange?: number;
 }
 
 // Also update TripsByMonth to include travelers:
@@ -78,7 +82,7 @@ export interface District {
 
 // Add these types if not already present
 
-export type PlaceCategory = 
+export type PlaceCategory =
   | 'historical'
   | 'nature'
   | 'food'

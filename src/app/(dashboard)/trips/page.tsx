@@ -43,29 +43,29 @@ export default function TripsPage() {
   const { admin } = useAuth();
 
   // Get initial filters from URL
-const initialDistrictId = searchParams.get('district') || "all";
-const initialStatus = searchParams.get('status') || "all";
+  const initialDistrictId = searchParams.get('district') || "all";
+  const initialStatus = searchParams.get('status') || "all";
 
-const [statusFilter, setStatusFilter] = useState<string>(initialStatus);
-const [districtFilter, setDistrictFilter] = useState(initialDistrictId);
+  const [statusFilter, setStatusFilter] = useState<string>(initialStatus);
+  const [districtFilter, setDistrictFilter] = useState(initialDistrictId);
 
 
   // State
   const [searchQuery, setSearchQuery] = useState('');
-/*   const [statusFilter, setStatusFilter] = useState<string>(initialStatus);
-  const [districtFilter, setDistrictFilter] = useState(initialDistrictId); */
+  /*   const [statusFilter, setStatusFilter] = useState<string>(initialStatus);
+    const [districtFilter, setDistrictFilter] = useState(initialDistrictId); */
 
   // Data hooks
-/*   const { data: trips, isLoading, refetch } = useTrips({
-    status: statusFilter as TripStatus | undefined,
-    districtId: districtFilter || undefined,
-    search: searchQuery || undefined,
-  }); */
+  /*   const { data: trips, isLoading, refetch } = useTrips({
+      status: statusFilter as TripStatus | undefined,
+      districtId: districtFilter || undefined,
+      search: searchQuery || undefined,
+    }); */
   const { data: trips, isLoading, refetch } = useTrips({
-  status: statusFilter === "all" ? undefined : (statusFilter as TripStatus),
-  districtId: districtFilter === "all" ? undefined : districtFilter,
-  search: searchQuery || undefined,
-});
+    status: statusFilter === "all" ? undefined : (statusFilter as TripStatus),
+    districtId: districtFilter === "all" ? undefined : districtFilter,
+    search: searchQuery || undefined,
+  });
   const { data: stats, refetch: refetchStats } = useTripStats();
   const { data: districts } = useDistricts();
   const { updateStatus, remove, isLoading: mutationLoading } = useTripMutations();
@@ -82,7 +82,7 @@ const [districtFilter, setDistrictFilter] = useState(initialDistrictId);
 
     const query = searchQuery.toLowerCase();
     return trips.filter(trip =>
-      trip.title.toLowerCase().includes(query) ||
+      trip.title?.toLowerCase().includes(query) ||
       trip.district_names?.some(d => d.toLowerCase().includes(query))
     );
   }, [trips, searchQuery]);
@@ -122,11 +122,11 @@ const [districtFilter, setDistrictFilter] = useState(initialDistrictId);
     }
   };
 
-const clearFilters = () => {
-  setSearchQuery('');
-  setStatusFilter('all');
-  setDistrictFilter('all');
-};
+  const clearFilters = () => {
+    setSearchQuery('');
+    setStatusFilter('all');
+    setDistrictFilter('all');
+  };
 
 
   const hasActiveFilters = searchQuery || statusFilter || districtFilter;
@@ -217,35 +217,35 @@ const clearFilters = () => {
           />
         </div>
 
-<Select value={statusFilter} onValueChange={setStatusFilter}>
-  <SelectTrigger className="w-[150px]">
-    <SelectValue placeholder="All Status" />
-  </SelectTrigger>
-  <SelectContent>
-    <SelectItem value="all">All Status</SelectItem>
-    {TRIP_STATUSES.map((status) => (
-      <SelectItem key={status.value} value={status.value}>
-        {status.label}
-      </SelectItem>
-    ))}
-  </SelectContent>
-</Select>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-[150px]">
+            <SelectValue placeholder="All Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            {TRIP_STATUSES.map((status) => (
+              <SelectItem key={status.value} value={status.value}>
+                {status.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
 
         {/* District Filter */}
-<Select value={districtFilter} onValueChange={setDistrictFilter}>
-  <SelectTrigger className="w-[180px]">
-    <SelectValue placeholder="All Districts" />
-  </SelectTrigger>
-  <SelectContent>
-    <SelectItem value="all">All Districts</SelectItem>
-    {districts.map((district) => (
-      <SelectItem key={district.id} value={district.id}>
-        {district.name}
-      </SelectItem>
-    ))}
-  </SelectContent>
-</Select>
+        <Select value={districtFilter} onValueChange={setDistrictFilter}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="All Districts" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Districts</SelectItem>
+            {districts.map((district) => (
+              <SelectItem key={district.id} value={district.id}>
+                {district.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
 
         {hasActiveFilters && (
@@ -302,7 +302,7 @@ const clearFilters = () => {
         </div>
       )}
 
-      
+
 
       {/* Delete Dialog */}
       <DeleteTripDialog

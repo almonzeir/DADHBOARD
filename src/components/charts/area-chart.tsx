@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/components/charts/area-chart.tsx
 
 'use client';

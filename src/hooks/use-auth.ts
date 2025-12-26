@@ -12,7 +12,7 @@ export function useAuth() {
   const router = useRouter();
   const supabase = createClient();
   const authCheckRef = useRef(false);
-  
+
   const admin = useAuthStore((state) => state.admin);
   const isLoading = useAuthStore((state) => state.isLoading);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -38,10 +38,10 @@ export function useAuth() {
   const checkAuth = useCallback(async () => {
     if (authCheckRef.current) return;
     authCheckRef.current = true;
-    
+
     try {
       const { data: { session }, error } = await supabase.auth.getSession();
-      
+
       if (error || !session?.user) {
         setAdmin(null);
         return;
@@ -55,7 +55,7 @@ export function useAuth() {
       }
 
       const adminProfile = await fetchAdminProfile(session.user.id);
-      
+
       if (!adminProfile) {
         await supabase.auth.signOut();
         setAdmin(null);
@@ -71,7 +71,7 @@ export function useAuth() {
   const login = async (email: string, password: string) => {
     try {
       setLoading(true);
-      
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -100,7 +100,7 @@ export function useAuth() {
 
       setAdmin(adminProfile);
       router.push('/');
-      
+
       return { success: true };
     } catch (error) {
       setLoading(false);
@@ -188,7 +188,7 @@ export function useAuth() {
 
   return {
     admin,
-    isLoading: isLoading && !isHydrated,
+    isLoading: !isHydrated || isLoading,
     isAuthenticated,
     isHydrated,
     login,

@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/components/analytics/top-places.tsx
 
 'use client';

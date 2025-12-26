@@ -125,7 +125,7 @@ export default function AdminDetailsPage() {
             <div className="flex items-center gap-4">
               <Avatar className="h-16 w-16">
                 <AvatarFallback className="text-lg bg-primary/10 text-primary">
-                  {getInitials(admin.full_name)}
+                  {getInitials(admin.full_name || '')}
                 </AvatarFallback>
               </Avatar>
               <div>
@@ -213,7 +213,7 @@ export default function AdminDetailsPage() {
                   >
                     <Avatar className="h-10 w-10">
                       <AvatarFallback className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
-                        {getInitials(staff.full_name)}
+                        {getInitials(staff.full_name || '')}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">

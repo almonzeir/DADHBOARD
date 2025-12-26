@@ -71,7 +71,7 @@ export default function AdminManagementPage() {
   // Handlers
   const handleApprove = async () => {
     if (!selectedAdmin || !currentAdmin) return;
-    
+
     const result = await approve(selectedAdmin.id, currentAdmin.id);
     if (result.success) {
       toast.success(`${selectedAdmin.full_name} has been approved`);
@@ -85,7 +85,7 @@ export default function AdminManagementPage() {
 
   const handleReject = async (reason: string) => {
     if (!selectedAdmin || !currentAdmin) return;
-    
+
     const result = await reject(selectedAdmin.id, currentAdmin.id, reason);
     if (result.success) {
       toast.success(`Request from ${selectedAdmin.full_name} has been rejected`);
@@ -98,11 +98,11 @@ export default function AdminManagementPage() {
 
   const handleDelete = async () => {
     if (!selectedAdmin || !currentAdmin) return;
-    
+
     if (deleteType === 'org_admin') {
       const result = await deleteOrgAdmin(selectedAdmin.id, currentAdmin.id);
       if (result.success) {
-        const staffMsg = result.deletedStaffCount 
+        const staffMsg = result.deletedStaffCount
           ? ` and ${result.deletedStaffCount} staff member(s)`
           : '';
         toast.success(`${selectedAdmin.full_name}${staffMsg} has been deleted`);
@@ -127,15 +127,15 @@ export default function AdminManagementPage() {
 
   const handleInviteStaff = async (email: string, fullName: string) => {
     if (!currentAdmin) return { success: false };
-    
+
     const result = await inviteStaff(
-      email, 
+      email,
       fullName,
       currentAdmin.id,
-      currentAdmin.organization_id,
-      currentAdmin.organization_name
+      currentAdmin.organization_id ?? null,
+      currentAdmin.organization_name ?? null
     );
-    
+
     if (result.success) {
       toast.success(`Invitation sent to ${email}`);
       refetchStaff();
@@ -155,7 +155,7 @@ export default function AdminManagementPage() {
         <div className="flex items-center gap-3">
           <Avatar className="h-9 w-9">
             <AvatarFallback className="bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300">
-              {getInitials(row.original.full_name)}
+              {getInitials(row.original.full_name || '')}
             </AvatarFallback>
           </Avatar>
           <div>
@@ -184,7 +184,7 @@ export default function AdminManagementPage() {
       header: 'Requested',
       cell: ({ row }) => (
         <span className="text-muted-foreground">
-          {formatDate(row.original.requested_at || row.original.created_at)}
+          {formatDate(row.original.created_at)}
         </span>
       ),
     },
@@ -231,7 +231,7 @@ export default function AdminManagementPage() {
         <div className="flex items-center gap-3">
           <Avatar className="h-9 w-9">
             <AvatarFallback className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
-              {getInitials(row.original.full_name)}
+              {getInitials(row.original.full_name || '')}
             </AvatarFallback>
           </Avatar>
           <div>
@@ -315,7 +315,7 @@ export default function AdminManagementPage() {
         <div className="flex items-center gap-3">
           <Avatar className="h-9 w-9">
             <AvatarFallback className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
-              {getInitials(row.original.full_name)}
+              {getInitials(row.original.full_name || '')}
             </AvatarFallback>
           </Avatar>
           <div>
@@ -382,19 +382,19 @@ export default function AdminManagementPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold">
+          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
             {isSuperAdmin ? 'Admin Management' : 'Team Management'}
           </h1>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-muted-foreground mt-1 text-sm">
             {isSuperAdmin
-              ? 'Manage organization admins and approval requests'
-              : 'Manage your team members'}
+              ? 'Review approval requests and manage organization admins'
+              : 'Invite and manage your team members'}
           </p>
         </div>
         {isOrgAdmin && (
-          <Button onClick={() => setInviteDialogOpen(true)}>
+          <Button onClick={() => setInviteDialogOpen(true)} className="h-10 px-5 shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-shadow">
             <UserPlus className="h-4 w-4 mr-2" />
-            Invite Staff
+            Invite Team Member
           </Button>
         )}
       </div>

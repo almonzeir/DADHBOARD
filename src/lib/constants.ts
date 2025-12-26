@@ -21,27 +21,27 @@ export const ROLE_LABELS: Record<string, string> = {
 };
 
 export const ADMIN_ROLES = [
-  { 
-    value: 'super_admin', 
-    label: 'Super Admin', 
+  {
+    value: 'super_admin',
+    label: 'Super Admin',
     color: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
     description: 'Full system access'
   },
-  { 
-    value: 'org_admin', 
-    label: 'Organization Admin', 
+  {
+    value: 'org_admin',
+    label: 'Organization Admin',
     color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
     description: 'Organization management'
   },
-  { 
-    value: 'org_staff', 
-    label: 'Staff', 
+  {
+    value: 'org_staff',
+    label: 'Staff',
     color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
     description: 'Limited access'
   },
-  { 
-    value: 'pending', 
-    label: 'Pending', 
+  {
+    value: 'pending',
+    label: 'Pending',
     color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
     description: 'Awaiting approval'
   },
@@ -151,33 +151,20 @@ export const ORGANIZATION_TYPES = [
 
 export const NAVIGATION_ITEMS = {
   super_admin: [
-    { label: 'Dashboard', href: '/', icon: 'LayoutDashboard' },
-    { label: 'Analytics', href: '/analytics', icon: 'BarChart3' },
-    { label: 'Admin Management', href: '/admin-management', icon: 'Users' },
-    { label: 'Districts', href: '/districts', icon: 'Map' },
     { label: 'Places', href: '/places', icon: 'MapPin' },
-    { label: 'Tourists', href: '/users', icon: 'UserCircle' },
-    { label: 'Trips', href: '/trips', icon: 'Route' },
+    { label: 'User Management', href: '/admin-management', icon: 'Users' },
     { label: 'Reports', href: '/reports', icon: 'FileText' },
     { label: 'Settings', href: '/settings', icon: 'Settings' },
   ],
   org_admin: [
-    { label: 'Dashboard', href: '/', icon: 'LayoutDashboard' },
-    { label: 'Analytics', href: '/analytics', icon: 'BarChart3' },
-    { label: 'Team Management', href: '/admin-management', icon: 'Users' },
-    { label: 'Districts', href: '/districts', icon: 'Map' },
     { label: 'Places', href: '/places', icon: 'MapPin' },
-    { label: 'Tourists', href: '/users', icon: 'UserCircle' },
-    { label: 'Trips', href: '/trips', icon: 'Route' },
+    { label: 'Itinerary Analytics', href: '/trips', icon: 'Map' },
+    { label: 'Team Management', href: '/admin-management', icon: 'Users' },
     { label: 'Reports', href: '/reports', icon: 'FileText' },
     { label: 'Settings', href: '/settings', icon: 'Settings' },
   ],
   org_staff: [
-    { label: 'Dashboard', href: '/', icon: 'LayoutDashboard' },
-    { label: 'Districts', href: '/districts', icon: 'Map' },
     { label: 'Places', href: '/places', icon: 'MapPin' },
-    { label: 'Tourists', href: '/users', icon: 'UserCircle' },
-    { label: 'Trips', href: '/trips', icon: 'Route' },
     { label: 'Settings', href: '/settings', icon: 'Settings' },
   ],
   pending: [

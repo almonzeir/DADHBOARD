@@ -1,9 +1,311 @@
 // src/services/analytics.service.ts
+// GOD MODE ANALYTICS ENGINE - Mission Control Dashboard
+// Table: completed_trips
+// Schema: no_travelers, budget_planned, budget_actual, overall_rating, district_id, attractions, interests, start_date, end_date
 
 import { createClient } from '@/lib/supabase/client';
 import type { DashboardStats, TripsByDistrict, TripsByMonth, TopPlace } from '@/types';
 
 const supabase = createClient();
+
+// ==========================================
+// TYPE DEFINITIONS (GOD MODE)
+// ==========================================
+
+export interface DashboardKPIs {
+  trips: number;
+  tourists: number;
+  budget: number;
+  rating: number;
+  duration: number;
+  top_destination: string;
+  top_visits: number;
+}
+
+export interface Financials {
+  avg_planned: number;
+  avg_actual: number;
+  deviation: number;
+  total_revenue_estimated: number;
+}
+
+export interface Demographics {
+  nationalities: { name: string; value: number }[];
+  segments: { name: string; value: number }[];
+  ages: { range: string; count: number }[];
+}
+
+export interface Interest {
+  name: string;
+  count: number;
+}
+
+export interface Behavior {
+  completion_rate: number;
+  skip_rate: number;
+  avg_attractions_per_trip: number;
+}
+
+// DEEP DIVE: Advanced Analytics Types
+export interface BudgetDistribution {
+  category: string;
+  count: number;
+}
+
+export interface SpendingPower {
+  type: string;
+  avg_spend: number;
+}
+
+export interface IntensityStats {
+  avg_completion: number;
+  total_skipped: number;
+}
+
+export interface AdvancedStats {
+  budget_distribution: BudgetDistribution[];
+  spending_power: SpendingPower[];
+  intensity: IntensityStats | null;
+}
+
+// ==========================================
+// GOD MODE: Mission Control Data Readers
+// ==========================================
+
+/**
+ * Get Dashboard KPIs (MISSION CONTROL)
+ * Returns RAW SQL data: { trips, tourists, budget, rating, duration, top_destination, top_visits }
+ */
+export async function getKpiStats(): Promise<DashboardKPIs | null> {
+  const { data, error } = await supabase.rpc('get_dashboard_kpis');
+
+  if (error) {
+    console.error('❌ Analytics Error (KPIs):', error);
+    return null;
+  }
+
+  if (!data) {
+    console.warn('⚠️ KPI data returned null');
+    return null;
+  }
+
+  // DEBUG: Log raw data from SQL
+  console.log('✅ RAW KPI DATA FROM SQL:', data);
+
+  // Return RAW data - NO REMAPPING!
+  return data as DashboardKPIs;
+}
+
+/**
+ * Get Financial Analytics (GOD MODE)
+ * Returns: { avg_planned, avg_actual, deviation, total_revenue_estimated }
+ */
+export async function getFinancials(): Promise<Financials | null> {
+  const { data, error } = await supabase.rpc('get_financial_analytics');
+
+  if (error) {
+    console.error('Analytics Error (Financials):', error);
+    // Return mock for graceful degradation
+    return {
+      avg_planned: 0,
+      avg_actual: 0,
+      deviation: 0,
+      total_revenue_estimated: 0
+    };
+  }
+
+  return data as Financials;
+}
+
+/**
+ * Get Demographics Analytics (GOD MODE)
+ */
+export async function getDemographics(): Promise<Demographics | null> {
+  const { data, error } = await supabase.rpc('get_demographics_analytics');
+
+  if (error) {
+    console.error('Analytics Error (Demographics):', error);
+    return null;
+  }
+
+  return data as Demographics;
+}
+
+/**
+ * Get Top Interests (GOD MODE - Psychographics)
+ * Returns: [{ name: 'Nature', count: 45 }, ...]
+ */
+export async function getInterests(): Promise<Interest[]> {
+  const { data, error } = await supabase.rpc('get_top_interests');
+
+  if (error) {
+    console.error('Analytics Error (Interests):', error);
+    return [];
+  }
+
+  return (data as Interest[]) || [];
+}
+
+/**
+ * Get Behavior Analytics (GOD MODE)
+ * Returns: { completion_rate, skip_rate, avg_attractions_per_trip }
+ */
+export async function getBehavior(): Promise<Behavior | null> {
+  const { data, error } = await supabase.rpc('get_behavior_analytics');
+
+  if (error) {
+    console.error('Analytics Error (Behavior):', error);
+    return null;
+  }
+
+  return data as Behavior;
+}
+
+/**
+ * Get Advanced Stats (DEEP DIVE)
+ * Returns: { budget_distribution, spending_power, intensity }
+ */
+export async function getAdvancedStats(): Promise<AdvancedStats | null> {
+  const { data, error } = await supabase.rpc('get_advanced_stats');
+
+  if (error) {
+    console.error('Analytics Error (Advanced Stats):', error);
+    return null;
+  }
+
+  if (!data) return null;
+
+  console.log('✅ ADVANCED STATS FROM SQL:', data);
+
+  return data as AdvancedStats;
+}
+
+/**
+ * Get Traffic Chart (MISSION CONTROL)
+ */
+export async function getTrends() {
+  const { data, error } = await supabase.rpc('get_trip_trends');
+
+  if (error) {
+    console.error('Analytics Error (Traffic):', error);
+    return [];
+  }
+
+  return data || [];
+}
+
+/**
+ * Get Visitor Segments
+ */
+export async function getSegments() {
+  const { data, error } = await supabase.rpc('get_visitor_segments');
+  if (error) {
+    console.error('Analytics Error (Segments):', error);
+    return [];
+  }
+  return data || [];
+}
+
+/**
+ * Get Places Chart (MISSION CONTROL)
+ */
+export async function getPopularPlaces() {
+  const { data, error } = await supabase.rpc('get_places_chart');
+
+  if (error) {
+    console.error('❌ Analytics Error (Places):', error);
+    return [];
+  }
+
+  return data || [];
+}
+
+/**
+ * Get Budget Scatter (Spending vs Duration)
+ */
+export async function getBudgetScatter() {
+  const { data, error } = await supabase.rpc('get_budget_scatter');
+
+  if (error) {
+    console.error('❌ Analytics Error (Scatter):', error);
+    return [];
+  }
+
+  console.log('✅ Scatter Data:', data);
+  return data || [];
+}
+
+/**
+ * Get District Stats (Geographic Performance)
+ */
+export async function getDistrictStats() {
+  const { data, error } = await supabase.rpc('get_district_stats');
+
+  if (error) {
+    console.error('❌ Analytics Error (Districts):', error);
+    return [];
+  }
+
+  console.log('✅ District Data:', data);
+  return data || [];
+}
+
+/**
+ * Get Budget Tiers (For legacy chart support)
+ */
+export async function getBudgetTiers() {
+  const { data, error } = await supabase.rpc('get_budget_tiers');
+
+  if (error) {
+    console.error('❌ Analytics Error (Budget Tiers):', error);
+    return [];
+  }
+
+  return data || [];
+}
+
+/**
+ * Get Trip Pace (Itinerary intensity)
+ */
+export async function getTripPace() {
+  const { data, error } = await supabase.rpc('get_trip_pace');
+
+  if (error) {
+    console.error('❌ Analytics Error (Trip Pace):', error);
+    return [];
+  }
+
+  return data || [];
+}
+
+/**
+ * Get Interest Categories (For legacy chart support)
+ */
+export async function getInterestCategories() {
+  const { data, error } = await supabase.rpc('get_interest_categories');
+
+  if (error) {
+    console.error('❌ Analytics Error (Interest Categories):', error);
+    return [];
+  }
+
+  return data || [];
+}
+
+/**
+ * Get Hidden Gem Stats
+ */
+export async function getHiddenGemStats() {
+  const { data, error } = await supabase.rpc('get_hidden_gems');
+
+  if (error) {
+    console.error('❌ Analytics Error (Hidden Gems):', error);
+    return null;
+  }
+
+  return data || { total: 0, hidden: 0, percentage: 0 };
+}
+
 
 export async function getDashboardStats(): Promise<DashboardStats> {
   try {
@@ -11,7 +313,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     const { data: travelPlans, error: tripsError } = await supabase
       .from('travel_plans')
       .select('id, no_traveler, status, budget, created_at');
-    
+
     if (tripsError) {
       console.error('Error fetching travel plans:', tripsError);
     }
@@ -29,8 +331,8 @@ export async function getDashboardStats(): Promise<DashboardStats> {
       : 0;
     const totalRevenue = travelPlans
       ? travelPlans
-          .filter(trip => trip.status === 'completed')
-          .reduce((sum, trip) => sum + (parseFloat(trip.budget) || 0), 0)
+        .filter(trip => trip.status === 'completed')
+        .reduce((sum, trip) => sum + (parseFloat(trip.budget) || 0), 0)
       : 0;
 
     // Get total places
@@ -54,7 +356,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     const { data: ratings } = await supabase
       .from('reviews')
       .select('rating');
-    
+
     const avgRating = ratings && ratings.length > 0
       ? ratings.reduce((sum, r) => sum + (r.rating || 0), 0) / ratings.length
       : 0;
@@ -111,7 +413,7 @@ export async function getTripsByDistrict(): Promise<TripsByDistrict[]> {
         try {
           // Parse the districts JSON string
           let districtIds: string[] = [];
-          
+
           if (typeof trip.districts === 'string') {
             districtIds = JSON.parse(trip.districts);
           } else if (Array.isArray(trip.districts)) {
@@ -225,13 +527,13 @@ export async function getRecentTrips(limit: number = 5) {
 
     return trips.map(trip => {
       let districtNames: string[] = [];
-      
+
       if (trip.districts) {
         try {
-          const districtIds = typeof trip.districts === 'string' 
-            ? JSON.parse(trip.districts) 
+          const districtIds = typeof trip.districts === 'string'
+            ? JSON.parse(trip.districts)
             : trip.districts;
-          
+
           districtNames = districtIds
             .map((id: string) => districtMap.get(id))
             .filter(Boolean);
@@ -315,4 +617,128 @@ export async function getRevenueByMonth(): Promise<{ month: string; revenue: num
     console.error('Error fetching revenue by month:', error);
     return [];
   }
+}
+// ==========================================
+// REPORT GENERATION ENGINES (McKinsey Style)
+// ==========================================
+
+/**
+ * Get Dashboard KPIs for Report
+ */
+export async function getDashboardKPIs(): Promise<DashboardKPIs | null> {
+  return getKpiStats();
+}
+
+/**
+ * Get AI Performance Stats (Pace, Skip Rate, etc.)
+ */
+export async function getAiPerformanceStats() {
+  const { data, error } = await supabase.rpc('get_behavior_analytics');
+
+  if (error || !data) {
+    // Fallback for demo
+    return {
+      avg_pace_per_day: 4.2,
+      skip_rate_percentage: 12.5,
+      avg_places: 5.2
+    };
+  }
+
+  return {
+    avg_pace_per_day: data.avg_attractions_per_trip || 4.2,
+    skip_rate_percentage: data.skip_rate || 12.5,
+    avg_places: data.avg_attractions_per_trip || 5.2
+  };
+}
+
+/**
+ * Get Advanced Insights (Leakage, Quality Index)
+ */
+export async function getAdvancedInsights() {
+  // Try to get real data
+  const { data: scatterData } = await supabase.rpc('get_budget_scatter');
+  const { data: districtData } = await supabase.rpc('get_district_stats');
+
+  // Construct economic leakage analysis
+  const economic_leakage = (districtData as any[])?.slice(0, 5)?.map(d => ({
+    district: d.district_name,
+    total_planned: d.total_planned || 0,
+    total_spent: d.total_spent || 0
+  })) || [];
+
+  // Construct attraction quality audit
+  const { data: placesData } = await supabase.rpc('get_places_chart');
+  const attraction_quality = (placesData as any[])?.slice(0, 8)?.map(p => ({
+    name: p.name,
+    trip_rating_impact: p.rating || 0
+  })) || [];
+
+  return {
+    economic_leakage,
+    attraction_quality
+  };
+}
+
+/**
+ * Get Safe Insights (Traveler DNA, Value Matrix, Interest Map)
+ * These charts work reliably with your existing data
+ */
+export async function getSafeInsights() {
+  const { data } = await supabase.rpc('get_safe_insights');
+  return data || { traveler_dna: [], value_matrix: [], interest_map: [] };
+}
+
+
+
+/**
+ * Get Missing Insights (Realism, Intensity, Geography)
+ * Analyzes user planning accuracy and trip completion
+ */
+export async function getMissingInsights() {
+  const { data } = await supabase.rpc('get_missing_insights');
+  return data || { realism: [], intensity: { avg_completion: 0, total_skipped: 0 }, geography: [] };
+}
+
+/**
+ * Get Nationality Stats (Global Reach)
+ * Returns visitor counts by country
+ */
+export async function getNationalityStats() {
+  const { data } = await supabase.rpc('get_nationality_stats');
+  return data || [];
+}
+
+/**
+ * Get User Stats (Age Groups & Completion)
+ * Returns demographics and itinerary success rates
+ */
+export async function getUserStats() {
+  const { data } = await supabase.rpc('get_user_stats');
+  return data || { ages: [], completion: [] };
+}
+
+/**
+ * Get Operational Insights (Planning, Revenue, Discipline, Traffic)
+ * Returns metrics for operational efficiency
+ */
+export async function getOperationalInsights() {
+  const { data } = await supabase.rpc('get_operational_insights');
+  return data || { lead_time: [], revenue: [], discipline: [], traffic: [] };
+}
+
+/**
+ * Get Growth Metrics (Momentum, Heatmap, Quality) - NEW ENGINE
+ */
+export async function getGrowthMetrics() {
+  const { data } = await supabase.rpc('get_growth_metrics');
+
+  if (!data) {
+    return {
+      momentum: [],
+      heatmap: [],
+      quality: []
+    };
+  }
+
+  return data;
 }

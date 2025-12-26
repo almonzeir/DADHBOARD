@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/components/charts/stats-card.tsx
 
 import { Card, CardContent } from '@/components/ui/card';

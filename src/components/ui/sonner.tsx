@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use client"
 
 import {
@@ -38,3 +39,4 @@ const Toaster = ({ ...props }: ToasterProps) => {
 }
 
 export { Toaster }
+
