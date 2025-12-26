@@ -151,23 +151,13 @@ export const ORGANIZATION_TYPES = [
 
 export const NAVIGATION_ITEMS = {
   super_admin: [
-    { label: 'Dashboard', href: '/', icon: 'LayoutDashboard' },
+    { label: 'Executive Summary', href: '/', icon: 'LayoutDashboard' },
     { label: 'Admin Management', href: '/admin-management', icon: 'Users' },
-    { label: 'Districts', href: '/districts', icon: 'Map' },
-    { label: 'Places', href: '/places', icon: 'MapPin' },
-    { label: 'Tourists', href: '/users', icon: 'UserCircle' },
-    { label: 'Trips', href: '/trips', icon: 'Route' },
-    { label: 'Reports', href: '/reports', icon: 'FileText' },
     { label: 'Settings', href: '/settings', icon: 'Settings' },
   ],
   org_admin: [
-    { label: 'Dashboard', href: '/', icon: 'LayoutDashboard' },
+    { label: 'Executive Summary', href: '/', icon: 'LayoutDashboard' },
     { label: 'Team Management', href: '/admin-management', icon: 'Users' },
-    { label: 'Districts', href: '/districts', icon: 'Map' },
-    { label: 'Places', href: '/places', icon: 'MapPin' },
-    { label: 'Tourists', href: '/users', icon: 'UserCircle' },
-    { label: 'Trips', href: '/trips', icon: 'Route' },
-    { label: 'Reports', href: '/reports', icon: 'FileText' },
     { label: 'Settings', href: '/settings', icon: 'Settings' },
   ],
   org_staff: [
