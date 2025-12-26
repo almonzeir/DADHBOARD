@@ -3,6 +3,66 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { format } from 'date-fns';
+import html2canvas from 'html2canvas';
+
+// ============================================
+// VISUAL REPORT EXPORT (HTML -> PDF)
+// ============================================
+
+export async function generateVisualReport(elementId: string, filename: string) {
+  const element = document.getElementById(elementId);
+  if (!element) {
+    throw new Error('Report element not found');
+  }
+
+  try {
+    // Wait for a moment to ensure rendering is complete (especially charts)
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const canvas = await html2canvas(element, {
+      scale: 2, // High resolution
+      useCORS: true, // For images if any
+      backgroundColor: '#0f172a', // Ensure slate-950 background
+      logging: false,
+    } as any);
+
+    const imgData = canvas.toDataURL('image/png');
+
+    // PDF Dimensions (A4 Landscape or Custom Wide)
+    // A4 Landscape: 297mm x 210mm
+    // Let's use custom wide format to match screen ratio better if needed,
+    // but A4 Landscape is standard for printing.
+    const pdf = new jsPDF({
+      orientation: 'landscape',
+      unit: 'mm',
+      format: 'a4',
+    });
+
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+
+    // Calculate scaling to fit width
+    const imgWidth = canvas.width;
+    const imgHeight = canvas.height;
+    const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+
+    // If the content is very long, we might need multiple pages,
+    // but for this specific executive summary, we fit to one wide page or split.
+    // For now, let's fit width and allow height to flow or scale down.
+
+    const finalImgWidth = pdfWidth;
+    const finalImgHeight = (imgHeight * pdfWidth) / imgWidth;
+
+    pdf.addImage(imgData, 'PNG', 0, 0, finalImgWidth, finalImgHeight);
+
+    pdf.save(`${filename}_${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+    return { success: true };
+  } catch (error) {
+    console.error('PDF Generation Error:', error);
+    return { success: false, error: 'Failed to generate visual report' };
+  }
+}
 
 // ============================================
 // CSV EXPORT
@@ -20,19 +80,16 @@ export function convertToCSV(data: any[], columns: { key: string; label: string 
   // Data rows
   const rows = data.map(item => {
     return columns.map(col => {
-      let value = item[col.key];
+      const value = item[col.key];
       
       // Handle different value types
       if (value === null || value === undefined) {
-        value = '';
+        return '""';
       } else if (typeof value === 'object') {
-        value = JSON.stringify(value);
+        return `"${JSON.stringify(value).replace(/"/g, '""')}"`;
       } else {
-        value = String(value);
+        return `"${String(value).replace(/"/g, '""')}"`;
       }
-      
-      // Escape quotes and wrap in quotes
-      return `"${value.replace(/"/g, '""')}"`;
     }).join(',');
   });
 
@@ -57,7 +114,7 @@ export function downloadCSV(csvContent: string, filename: string): void {
 }
 
 // ============================================
-// PDF EXPORT
+// PDF EXPORT (Legacy/Table-based)
 // ============================================
 
 interface PDFReportOptions {

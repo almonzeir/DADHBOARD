@@ -12,7 +12,56 @@
 
 /* ===== CSS Custom Properties ===== */
 :root {
-  /* Light Mode Colors */
+  /* Night Mode Executive Theme - Defaulting to Dark/Executive Look */
+  --background: 222 47% 6%; /* Slate 950 #0f172a */
+  --foreground: 210 40% 98%;
+
+  --card: 222 47% 8%; /* Slightly lighter than bg */
+  --card-foreground: 210 40% 98%;
+
+  --popover: 222 47% 8%;
+  --popover-foreground: 210 40% 98%;
+
+  --primary: 142 76% 50%; /* Emerald */
+  --primary-foreground: 222 47% 6%;
+
+  --secondary: 222 47% 14%;
+  --secondary-foreground: 142 76% 60%;
+
+  --muted: 222 47% 14%;
+  --muted-foreground: 215 20% 65%;
+
+  --accent: 222 47% 14%;
+  --accent-foreground: 142 76% 60%;
+
+  --destructive: 0 84% 60%; /* Rose/Red */
+  --destructive-foreground: 210 40% 98%;
+
+  --border: 222 47% 18%;
+  --input: 222 47% 18%;
+  --ring: 142 76% 50%;
+  
+  /* Chart Colors (Executive Palette) */
+  --chart-1: 142 76% 50%; /* Emerald (Money/Good) */
+  --chart-2: 38 92% 50%; /* Amber (Rating) */
+  --chart-3: 217 91% 60%; /* Blue/Indigo (Neutral/Data) */
+  --chart-4: 0 84% 60%; /* Red/Rose (Warning) */
+  --chart-5: 262 83% 58%; /* Purple */
+  
+  /* Sidebar */
+  --sidebar: 222 47% 6%; /* Match Background */
+  --sidebar-foreground: 210 40% 98%;
+  --sidebar-accent: 222 47% 12%;
+  --sidebar-accent-foreground: 142 76% 60%;
+  --sidebar-border: 222 47% 12%;
+  
+  /* Gradient */
+  --gradient-start: 142 76% 35%;
+  --gradient-end: 217 91% 40%;
+}
+
+/* Light Mode Overrides (Optional - keeping for compatibility but defaulting to dark feel) */
+.light {
   --background: 0 0% 100%;
   --foreground: 222.2 84% 4.9%;
   --card: 0 0% 100%;
@@ -32,80 +81,6 @@
   --border: 214 32% 91%;
   --input: 214 32% 91%;
   --ring: 142 76% 45%;
-  
-  /* Chart Colors */
-  --chart-1: 142 76% 45%;
-  --chart-2: 160 84% 39%;
-  --chart-3: 82 84% 45%;
-  --chart-4: 43 74% 49%;
-  --chart-5: 27 87% 54%;
-  
-  /* Sidebar */
-  --sidebar: 142 76% 45%;
-  --sidebar-foreground: 0 0% 100%;
-  --sidebar-accent: 142 76% 38%;
-  --sidebar-accent-foreground: 0 0% 100%;
-  --sidebar-border: 142 76% 38%;
-  
-  /* Gradient */
-  --gradient-start: 142 76% 45%;
-  --gradient-end: 82 84% 50%;
-
-  /* Chart colors */
-  --chart-1: 221 83% 53%;
-  --chart-2: 160 84% 39%;
-  --chart-3: 38 92% 50%;
-  --chart-4: 0 84% 60%;
-  --chart-5: 262 83% 58%;
-}
-
-/* ===== Dark Mode Colors ===== */
-.dark {
-  --background: 222 47% 6%;
-  --foreground: 210 40% 98%;
-  --card: 222 47% 8%;
-  --card-foreground: 210 40% 98%;
-  --popover: 222 47% 8%;
-  --popover-foreground: 210 40% 98%;
-  --primary: 142 76% 50%;
-  --primary-foreground: 222 47% 6%;
-  --secondary: 222 47% 14%;
-  --secondary-foreground: 142 76% 60%;
-  --muted: 222 47% 14%;
-  --muted-foreground: 215 20% 65%;
-  --accent: 222 47% 14%;
-  --accent-foreground: 142 76% 60%;
-  --destructive: 0 63% 31%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 222 47% 18%;
-  --input: 222 47% 18%;
-  --ring: 142 76% 50%;
-  
-  /* Chart Colors */
-  --chart-1: 142 76% 50%;
-  --chart-2: 160 84% 44%;
-  --chart-3: 82 84% 50%;
-  --chart-4: 43 74% 54%;
-  --chart-5: 27 87% 59%;
-  
-  /* Sidebar */
-  --sidebar: 222 47% 10%;
-  --sidebar-foreground: 210 40% 98%;
-  --sidebar-accent: 222 47% 16%;
-  --sidebar-accent-foreground: 142 76% 60%;
-  --sidebar-border: 222 47% 18%;
-  
-  /* Gradient */
-  --gradient-start: 142 76% 35%;
-  --gradient-end: 82 84% 40%;
-
-    /* Chart colors for dark mode */
-  --chart-1: 217 91% 60%;
-  --chart-2: 160 84% 39%;
-  --chart-3: 43 96% 56%;
-  --chart-4: 0 84% 60%;
-  --chart-5: 262 83% 58%;
-
 }
 
 /* ===== Base Styles ===== */
@@ -184,14 +159,15 @@ body {
 
 .card-hover:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 40px -10px hsl(var(--foreground) / 0.1);
+  box-shadow: 0 10px 40px -10px hsl(var(--primary) / 0.1); /* Emerald glow */
 }
 
-/* ===== Glass Effect ===== */
+/* ===== Glass Effect (Pro) ===== */
 .glass {
-  background: hsl(var(--background) / 0.8);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: hsl(var(--card) / 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid hsl(var(--border) / 0.5);
 }
 
 /* ===== Animations ===== */
