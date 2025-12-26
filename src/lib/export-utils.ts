@@ -45,7 +45,6 @@ export async function generateVisualReport(elementId: string, filename: string) 
     // Calculate scaling to fit width
     const imgWidth = canvas.width;
     const imgHeight = canvas.height;
-    const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
 
     // If the content is very long, we might need multiple pages,
     // but for this specific executive summary, we fit to one wide page or split.

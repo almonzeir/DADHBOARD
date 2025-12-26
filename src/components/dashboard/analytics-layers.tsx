@@ -159,7 +159,6 @@ function BehaviorLayer({ data }: { data: AnalyticsData }) {
       <div className="grid gap-6 lg:grid-cols-2">
         <TopPlaces places={data.topPlaces} />
 
-        {/* Placeholder for "Realism Check" or similar advanced metric if available */}
         <Card className="glass">
           <CardHeader>
             <CardTitle>Global Reach</CardTitle>

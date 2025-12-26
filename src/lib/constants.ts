@@ -152,7 +152,6 @@ export const ORGANIZATION_TYPES = [
 export const NAVIGATION_ITEMS = {
   super_admin: [
     { label: 'Dashboard', href: '/', icon: 'LayoutDashboard' },
-    { label: 'Analytics', href: '/analytics', icon: 'BarChart3' },
     { label: 'Admin Management', href: '/admin-management', icon: 'Users' },
     { label: 'Districts', href: '/districts', icon: 'Map' },
     { label: 'Places', href: '/places', icon: 'MapPin' },
@@ -163,7 +162,6 @@ export const NAVIGATION_ITEMS = {
   ],
   org_admin: [
     { label: 'Dashboard', href: '/', icon: 'LayoutDashboard' },
-    { label: 'Analytics', href: '/analytics', icon: 'BarChart3' },
     { label: 'Team Management', href: '/admin-management', icon: 'Users' },
     { label: 'Districts', href: '/districts', icon: 'Map' },
     { label: 'Places', href: '/places', icon: 'MapPin' },
