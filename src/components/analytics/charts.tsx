@@ -232,8 +232,8 @@ export function PieChartComponent({
                 outerRadius={100}
                 paddingAngle={2}
                 dataKey="value"
-                label={({ name, percentage }) => 
-                  percentage !== undefined ? `${name} (${percentage.toFixed(0)}%)` : name
+                label={({ name, percent }) =>
+                  percent !== undefined ? `${name} (${(percent * 100).toFixed(0)}%)` : name
                 }
                 labelLine={false}
               >

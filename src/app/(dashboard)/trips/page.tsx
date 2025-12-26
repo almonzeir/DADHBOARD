@@ -82,7 +82,7 @@ const [districtFilter, setDistrictFilter] = useState(initialDistrictId);
 
     const query = searchQuery.toLowerCase();
     return trips.filter(trip =>
-      trip.title.toLowerCase().includes(query) ||
+        (trip.title || '').toLowerCase().includes(query) ||
       trip.district_names?.some(d => d.toLowerCase().includes(query))
     );
   }, [trips, searchQuery]);

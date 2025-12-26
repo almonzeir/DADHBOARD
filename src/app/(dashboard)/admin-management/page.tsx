@@ -132,8 +132,8 @@ export default function AdminManagementPage() {
       email, 
       fullName,
       currentAdmin.id,
-      currentAdmin.organization_id,
-      currentAdmin.organization_name
+      currentAdmin.organization_id || null,
+      currentAdmin.organization_name || null
     );
     
     if (result.success) {
@@ -155,7 +155,7 @@ export default function AdminManagementPage() {
         <div className="flex items-center gap-3">
           <Avatar className="h-9 w-9">
             <AvatarFallback className="bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300">
-              {getInitials(row.original.full_name)}
+              {getInitials(row.original.full_name || '')}
             </AvatarFallback>
           </Avatar>
           <div>
@@ -184,7 +184,7 @@ export default function AdminManagementPage() {
       header: 'Requested',
       cell: ({ row }) => (
         <span className="text-muted-foreground">
-          {formatDate(row.original.requested_at || row.original.created_at)}
+          {formatDate(row.original.created_at)}
         </span>
       ),
     },
@@ -231,7 +231,7 @@ export default function AdminManagementPage() {
         <div className="flex items-center gap-3">
           <Avatar className="h-9 w-9">
             <AvatarFallback className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
-              {getInitials(row.original.full_name)}
+              {getInitials(row.original.full_name || '')}
             </AvatarFallback>
           </Avatar>
           <div>
@@ -315,7 +315,7 @@ export default function AdminManagementPage() {
         <div className="flex items-center gap-3">
           <Avatar className="h-9 w-9">
             <AvatarFallback className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
-              {getInitials(row.original.full_name)}
+              {getInitials(row.original.full_name || '')}
             </AvatarFallback>
           </Avatar>
           <div>

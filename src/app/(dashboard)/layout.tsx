@@ -59,7 +59,7 @@ export default function DashboardLayout({
                   Organization: {admin.organization_name || 'N/A'}
                 </p>
                 <p className="text-muted-foreground">
-                  Requested: {admin.requested_at ? new Date(admin.requested_at).toLocaleDateString() : 'N/A'}
+                  Requested: {new Date(admin.created_at).toLocaleDateString()}
                 </p>
               </div>
             </div>

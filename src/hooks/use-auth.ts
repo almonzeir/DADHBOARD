@@ -164,6 +164,16 @@ export function useAuth() {
     }
   };
 
+  const refreshAdmin = useCallback(async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) {
+      const adminProfile = await fetchAdminProfile(session.user.id);
+      if (adminProfile) {
+        setAdmin(adminProfile);
+      }
+    }
+  }, [supabase, fetchAdminProfile, setAdmin]);
+
   // Check auth on mount
   useEffect(() => {
     if (!isHydrated) {
@@ -195,5 +205,6 @@ export function useAuth() {
     logout,
     register,
     checkAuth,
+    refreshAdmin,
   };
 }

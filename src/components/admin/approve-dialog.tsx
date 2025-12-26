@@ -85,7 +85,7 @@ export function ApproveDialog({
             </div>
 
             <div className="text-xs text-muted-foreground pt-2 border-t">
-              Requested on {formatDate(admin.requested_at || admin.created_at)}
+              Requested on {formatDate(admin.created_at)}
             </div>
           </div>
 

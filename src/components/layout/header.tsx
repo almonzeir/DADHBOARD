@@ -80,7 +80,7 @@ export function Header() {
               <Avatar className="h-8 w-8">
                 <AvatarImage src="" />
                 <AvatarFallback className="gradient-bg text-white text-xs font-medium">
-                  {admin ? getInitials(admin.full_name) : 'AD'}
+                  {admin ? getInitials(admin.full_name || '') : 'AD'}
                 </AvatarFallback>
               </Avatar>
               <div className="hidden md:flex flex-col items-start text-left">
