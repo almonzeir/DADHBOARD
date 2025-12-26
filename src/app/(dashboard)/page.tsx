@@ -2,252 +2,260 @@
 
 'use client';
 
+import { useState } from 'react';
+import { DateRange } from 'react-day-picker';
+import { subMonths } from 'date-fns';
 import { useAuth } from '@/hooks/use-auth';
-import { useDashboardStats, useTripsByMonth, useTripsByDistrict, useTopPlaces, useAdvancedAnalytics } from '@/hooks/use-analytics';
-import { StatsCard } from '@/components/charts/stats-card';
-import { AreaChart } from '@/components/charts/area-chart';
-import { BarChart } from '@/components/charts/bar-chart';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Skeleton } from '@/components/ui/skeleton';
+import { useAdvancedAnalytics } from '@/hooks/use-analytics';
+import { DateRangePicker } from '@/components/analytics/date-range-picker';
 import {
-  Users,
-  MapPin,
+  TrendChart,
+  BarChartComponent,
+  PieChartComponent,
+  StatCard,
+} from '@/components/analytics/charts';
+import { TopPlaces } from '@/components/analytics/top-places';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
+import {
   Route,
-  Star,
-  TrendingUp,
-  Map,
+  Users,
+  DollarSign,
   Clock,
-  ArrowRight,
+  Target,
+  Calendar,
 } from 'lucide-react';
-import { formatCurrency, getInitials, getRoleDisplayName } from '@/lib/utils';
-import Link from 'next/link';
+import { formatCurrency, getRoleDisplayName } from '@/lib/utils';
+import { getTripStatusLabel } from '@/lib/constants';
 
 export default function DashboardPage() {
   const { admin } = useAuth();
-  const { stats, isLoading: statsLoading } = useDashboardStats();
-  const { data: advancedStats, isLoading: advancedLoading } = useAdvancedAnalytics();
-  const { data: tripsByMonth, isLoading: tripsMonthLoading } = useTripsByMonth();
-  const { data: tripsByDistrict, isLoading: tripsDistrictLoading } = useTripsByDistrict();
-  const { data: topPlaces, isLoading: topPlacesLoading } = useTopPlaces(5);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: subMonths(new Date(), 6),
+    to: new Date(),
+  });
 
-  // Safe access to comparison data
-  const comparison = advancedStats?.comparison || {
-    travelersChange: 0,
-    tripsChange: 0
-  };
+  const { data, isLoading } = useAdvancedAnalytics(
+    dateRange?.from && dateRange?.to
+      ? { from: dateRange.from, to: dateRange.to }
+      : undefined
+  );
 
-  const statsCards = [
-    {
-      title: 'Total Tourists',
-      value: stats?.totalTourists?.toLocaleString() || '0',
-      change: `${comparison.travelersChange > 0 ? '+' : ''}${comparison.travelersChange.toFixed(1)}% from last period`,
-      changeType: comparison.travelersChange >= 0 ? 'positive' as const : 'negative' as const,
-      icon: Users,
-    },
-    {
-      title: 'Active Places',
-      value: stats?.totalPlaces?.toLocaleString() || '0',
-      change: `${stats?.totalDistricts || 0} districts`,
-      changeType: 'neutral' as const,
-      icon: MapPin,
-    },
-    {
-      title: 'Total Trips',
-      value: stats?.totalTrips?.toLocaleString() || '0',
-      change: `${comparison.tripsChange > 0 ? '+' : ''}${comparison.tripsChange.toFixed(1)}% from last period`,
-      changeType: comparison.tripsChange >= 0 ? 'positive' as const : 'negative' as const,
-      icon: Route,
-    },
-    {
-      title: 'Avg. Rating',
-      value: stats?.avgRating?.toFixed(1) || '0.0',
-      change: 'from all reviews',
-      changeType: 'neutral' as const,
-      icon: Star,
-    },
-  ];
-
-  const isLoading = statsLoading || advancedLoading;
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-10 w-64" />
+        </div>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {[...Array(4)].map((_, i) => (
+            <Skeleton key={i} className="h-32" />
+          ))}
+        </div>
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Skeleton className="h-96" />
+          <Skeleton className="h-96" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      {/* Welcome Section */}
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold">
             Welcome back, {admin?.full_name?.split(' ')[0] || 'Admin'}! 👋
           </h1>
-          <p className="text-muted-foreground mt-1">
-            Here&apos;s what&apos;s happening with MaiKedah tourism today.
-          </p>
+          <div className="flex items-center gap-2 mt-1">
+            <p className="text-muted-foreground">
+              Here&apos;s your tourism overview
+            </p>
+            <Badge variant="secondary" className="text-xs">
+              {getRoleDisplayName(admin?.role || '')}
+            </Badge>
+          </div>
         </div>
-        <Badge variant="secondary" className="w-fit h-8 px-3 text-sm">
-          {getRoleDisplayName(admin?.role || '')}
-        </Badge>
+        <DateRangePicker
+          dateRange={dateRange}
+          onDateRangeChange={setDateRange}
+        />
       </div>
 
-      {/* Stats Grid */}
+      {/* Overview Stats */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {statsCards.map((stat) => (
-          <StatsCard
-            key={stat.title}
-            title={stat.title}
-            value={stat.value}
-            change={stat.change}
-            changeType={stat.changeType}
-            icon={stat.icon}
-            isLoading={isLoading}
-          />
-        ))}
-      </div>
-
-      {/* Charts Row */}
-      <div className="grid gap-6 md:grid-cols-2">
-        <AreaChart
-          title="Trip Trends"
-          description="Number of trips over the last 6 months"
-          data={tripsByMonth}
-          dataKey="trips"
-          xAxisKey="month"
-          isLoading={tripsMonthLoading}
+        <StatCard
+          title="Total Trips"
+          value={data.overview.totalTrips}
+          change={data.comparison.tripsChange}
+          icon={<Route className="h-6 w-6" />}
+          iconColor="bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400"
         />
-        <BarChart
-          title="Trips by District"
-          description="Most popular districts this month"
-          data={tripsByDistrict.slice(0, 8)}
-          dataKey="count"
-          xAxisKey="district"
-          isLoading={tripsDistrictLoading}
+        <StatCard
+          title="Total Travelers"
+          value={data.overview.totalTravelers}
+          change={data.comparison.travelersChange}
+          icon={<Users className="h-6 w-6" />}
+          iconColor="bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-400"
+        />
+        <StatCard
+          title="Total Budget"
+          value={formatCurrency(data.overview.totalBudget)}
+          change={data.comparison.budgetChange}
+          icon={<DollarSign className="h-6 w-6" />}
+          iconColor="bg-amber-100 text-amber-600 dark:bg-amber-900 dark:text-amber-400"
+        />
+        <StatCard
+          title="Completion Rate"
+          value={`${data.overview.completionRate.toFixed(0)}%`}
+          icon={<Target className="h-6 w-6" />}
+          iconColor="bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-400"
         />
       </div>
 
-      {/* Bottom Row */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {/* Top Places */}
-        <Card className="lg:col-span-2">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle className="text-lg">Top Attractions</CardTitle>
-              <CardDescription>Most visited places this month</CardDescription>
+      {/* Secondary Stats */}
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card>
+          <CardContent className="p-4 flex items-center gap-4">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-100 dark:bg-cyan-900">
+              <Clock className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
             </div>
-            <Link 
-              href="/places" 
-              className="text-sm text-primary hover:underline flex items-center gap-1"
-            >
-              View all <ArrowRight className="h-3 w-3" />
-            </Link>
-          </CardHeader>
-          <CardContent>
-            {topPlacesLoading ? (
-              <div className="space-y-4">
-                {[...Array(5)].map((_, i) => (
-                  <div key={i} className="flex items-center gap-4">
-                    <Skeleton className="h-10 w-10 rounded-lg" />
-                    <div className="flex-1">
-                      <Skeleton className="h-4 w-32" />
-                      <Skeleton className="h-3 w-20 mt-1" />
-                    </div>
-                    <Skeleton className="h-6 w-16" />
-                  </div>
-                ))}
-              </div>
-            ) : topPlaces.length > 0 ? (
-              <div className="space-y-4">
-                {topPlaces.map((place, index) => (
-                  <div key={place.id} className="flex items-center gap-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary font-semibold">
-                      {index + 1}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate">{place.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {place.visits} visits
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-1 text-amber-500">
-                      <Star className="h-4 w-4 fill-current" />
-                      <span className="text-sm font-medium">{place.rating.toFixed(1)}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                <MapPin className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                <p>No places data available</p>
-              </div>
-            )}
+            <div>
+              <p className="text-sm text-muted-foreground">Avg. Trip Duration</p>
+              <p className="text-xl font-bold">{data.overview.avgTripDuration.toFixed(1)} days</p>
+            </div>
           </CardContent>
         </Card>
+        <Card>
+          <CardContent className="p-4 flex items-center gap-4">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-pink-100 dark:bg-pink-900">
+              <DollarSign className="h-5 w-5 text-pink-600 dark:text-pink-400" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Avg. Budget per Trip</p>
+              <p className="text-xl font-bold">{formatCurrency(data.overview.avgBudget)}</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 flex items-center gap-4">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-100 dark:bg-indigo-900">
+              <Users className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Avg. Group Size</p>
+              <p className="text-xl font-bold">
+                {data.overview.totalTrips > 0
+                  ? (data.overview.totalTravelers / data.overview.totalTrips).toFixed(1)
+                  : 0} people
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
-        {/* Quick Actions / Pending Approvals */}
+      {/* Trend Chart */}
+      <TrendChart
+        title="Trip Trends"
+        description="Number of trips and travelers over time"
+        data={data.tripsTrend}
+      />
+
+      {/* Charts Grid */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Trips by District */}
+        <BarChartComponent
+          title="Trips by District"
+          description="Distribution of trips across Kedah districts"
+          data={data.tripsByDistrict.slice(0, 8).map(d => ({
+            name: d.district,
+            value: d.trips,
+          }))}
+          layout="vertical"
+        />
+
+        {/* Visitor Segments */}
+        <PieChartComponent
+          title="Visitor Segments"
+          description="Breakdown by traveler type"
+          data={data.tripsBySegment.map(s => ({
+            name: s.segment,
+            value: s.count,
+            percentage: s.percentage,
+          }))}
+        />
+
+        {/* Trip Status */}
+        <PieChartComponent
+          title="Trip Status"
+          description="Current status distribution"
+          data={data.tripsByStatus.map(s => ({
+            name: getTripStatusLabel(s.status),
+            value: s.count,
+            percentage: s.percentage,
+          }))}
+          innerRadius={50}
+        />
+
+        {/* Budget Distribution */}
+        <BarChartComponent
+          title="Budget Distribution"
+          description="Trips grouped by budget range"
+          data={data.budgetDistribution.map(b => ({
+            name: b.range,
+            value: b.count,
+          }))}
+        />
+      </div>
+
+      {/* Bottom Section */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Top Places */}
+        <TopPlaces places={data.topPlaces} />
+
+        {/* Recent Activity */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Quick Actions</CardTitle>
-            <CardDescription>Common tasks and shortcuts</CardDescription>
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="h-5 w-5" />
+              Recent Activity
+            </CardTitle>
+            <CardDescription>Latest trips created</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3">
-            {admin?.role === 'super_admin' && stats?.pendingApprovals ? (
-              <Link href="/admin-management">
-                <div className="flex items-center gap-3 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20 transition-colors cursor-pointer">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/20">
-                    <Clock className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+          <CardContent>
+            <div className="space-y-4">
+              {data.recentActivity.length > 0 ? (
+                data.recentActivity.map((activity) => (
+                  <div
+                    key={activity.id}
+                    className="flex items-center gap-4 p-3 rounded-lg bg-muted/50"
+                  >
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
+                      <Route className="h-4 w-4 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium truncate">{activity.title}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {new Date(activity.date).toLocaleDateString('en-MY', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                        })}
+                      </p>
+                    </div>
+                    <Badge variant="outline">New</Badge>
                   </div>
-                  <div className="flex-1">
-                    <p className="font-medium text-amber-600 dark:text-amber-400">
-                      Pending Approvals
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {stats.pendingApprovals} requests waiting
-                    </p>
-                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Calendar className="h-12 w-12 mx-auto mb-2 opacity-30" />
+                  <p>No recent activity</p>
                 </div>
-              </Link>
-            ) : null}
-
-            <Link href="/districts">
-              <div className="flex items-center gap-3 p-3 rounded-lg border hover:bg-accent transition-colors cursor-pointer">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                  <Map className="h-5 w-5 text-primary" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-medium">Manage Districts</p>
-                  <p className="text-sm text-muted-foreground">
-                    {stats?.totalDistricts || 12} districts
-                  </p>
-                </div>
-              </div>
-            </Link>
-
-            <Link href="/analytics">
-              <div className="flex items-center gap-3 p-3 rounded-lg border hover:bg-accent transition-colors cursor-pointer">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                  <TrendingUp className="h-5 w-5 text-primary" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-medium">View Analytics</p>
-                  <p className="text-sm text-muted-foreground">
-                    Detailed insights
-                  </p>
-                </div>
-              </div>
-            </Link>
-
-            <Link href="/reports">
-              <div className="flex items-center gap-3 p-3 rounded-lg border hover:bg-accent transition-colors cursor-pointer">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                  <Route className="h-5 w-5 text-primary" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-medium">Generate Reports</p>
-                  <p className="text-sm text-muted-foreground">
-                    Export tourism data
-                  </p>
-                </div>
-              </div>
-            </Link>
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>
