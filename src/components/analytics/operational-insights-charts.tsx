@@ -10,18 +10,8 @@ import {
 } from 'recharts';
 import { Briefcase } from 'lucide-react';
 
-export function OperationalInsightsCharts() {
-    const [opsData, setOpsData] = useState<any>(null);
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-        AnalyticsService.getOperationalInsights().then(data => {
-            setOpsData(data);
-            setIsLoading(false);
-        });
-    }, []);
-
-    if (isLoading || !opsData) {
+export function OperationalInsightsCharts({ data: opsData }: { data: any }) {
+    if (!opsData) {
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                 {[1, 2, 3, 4].map(i => (

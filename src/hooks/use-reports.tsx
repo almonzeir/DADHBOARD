@@ -1,5 +1,4 @@
-// src/hooks/use-reports.ts
-
+// src/hooks/use-reports.tsx
 'use client';
 
 import { useState } from 'react';
@@ -10,6 +9,7 @@ import {
   getAnalyticsSummary,
   ReportFilters,
 } from '@/services/reports.service';
+import * as AnalyticsService from '@/services/analytics.service';
 import {
   convertToCSV,
   downloadCSV,
@@ -131,7 +131,7 @@ export function useReports() {
       return { success: true };
     } catch (error) {
       console.error('Error generating districts report:', error);
-      return { success: false, error: 'Failed to generate report' };
+      return { success: false, error: 'Failed to find report' };
     } finally {
       setIsLoading(false);
     }
@@ -204,11 +204,70 @@ export function useReports() {
     }
   };
 
+  // New Executive Intelligence Report (World-Class Wide Format)
+  const generateExecutiveReport = async () => {
+    setIsLoading(true);
+    try {
+      // Dynamic imports for PDF engine to optimize bundle
+      const [
+        { pdf },
+        { saveAs },
+        { EnhancedIntelligenceReport }
+      ] = await Promise.all([
+        import('@react-pdf/renderer'),
+        import('file-saver'),
+        import('@/components/reports/EnhancedIntelligenceReport')
+      ]);
+
+      // 1. Fetch ALL Analytics Engines Fresh
+      const [
+        kpis, statsData, advanced, nationalities,
+        segments, operational, growth, psychographics
+      ] = await Promise.all([
+        AnalyticsService.getDashboardKPIs(),
+        AnalyticsService.getAiPerformanceStats(),
+        AnalyticsService.getAdvancedInsights(),
+        AnalyticsService.getNationalityStats(),
+        AnalyticsService.getSegments(),
+        AnalyticsService.getOperationalInsights(),
+        AnalyticsService.getGrowthMetrics(),
+        AnalyticsService.getSafeInsights(),
+      ]);
+
+      // 2. Generate PDF Document
+      const doc = (
+        <EnhancedIntelligenceReport
+          data={kpis}
+          stats={statsData}
+          advanced={advanced}
+          nationalities={nationalities}
+          segments={segments}
+          operational={operational}
+          growth={growth}
+          psychographics={psychographics}
+        />
+      );
+
+      const blob = await pdf(doc).toBlob();
+
+      // 3. Save with Executive Branding
+      saveAs(blob, `MAIKEDAH_EXECUTIVE_INTEL_${new Date().toISOString().split('T')[0]}.pdf`);
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error in generateExecutiveReport:', error);
+      return { success: false, error: 'Failed to generate strategic report' };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
     isLoading,
     generateTripsReport,
     generatePlacesReport,
     generateDistrictsReport,
     generateAnalyticsReport,
+    generateExecutiveReport,
   };
 }

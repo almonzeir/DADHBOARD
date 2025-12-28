@@ -67,7 +67,12 @@ interface SegmentData {
     percentage: number;
 }
 
-export function useAnalyticsData() {
+export interface AnalyticsFilters {
+    startDate?: string;
+    endDate?: string;
+}
+
+export function useAnalyticsData(filters?: AnalyticsFilters) {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [kpis, setKpis] = useState<DashboardKPIs | null>(null);
@@ -94,21 +99,22 @@ export function useAnalyticsData() {
                 setIsLoading(true);
                 setError(null);
 
-                console.log('🚀 Starting Mission Control Data Fetch (Restoration Edition)...');
+                console.log('🚀 Mission Control Fetching with filters:', filters);
 
-                // Fetch all data in parallel
+                // Fetch all data in parallel with filters
                 const results = await Promise.allSettled([
-                    getKpiStats(),
-                    getTrends(),
-                    getPopularPlaces(),
-                    getDistrictStats(),
-                    getFinancials(),
-                    getNationalityStats(),
-                    getSafeInsights(),        // NEW
-                    getOperationalInsights(), // NEW
-                    getMissingInsights(),     // NEW
-                    getGrowthMetrics()        // NEW
+                    getKpiStats(filters),
+                    getTrends(filters),
+                    getPopularPlaces(filters),
+                    getDistrictStats(filters),
+                    getFinancials(filters),
+                    getNationalityStats(filters),
+                    getSafeInsights(filters),
+                    getOperationalInsights(filters),
+                    getMissingInsights(filters),
+                    getGrowthMetrics(filters)
                 ]);
+                // ... rest of the result processing ...
 
                 // Process results
                 const [

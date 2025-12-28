@@ -21,13 +21,7 @@ import { Users, DollarSign, Heart } from 'lucide-react';
 
 const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ec4899'];
 
-export function SafeInsightsCharts() {
-    const [insights, setInsights] = useState<any>(null);
-
-    useEffect(() => {
-        AnalyticsService.getSafeInsights().then(setInsights);
-    }, []);
-
+export function SafeInsightsCharts({ data: insights }: { data: any }) {
     if (!insights) {
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

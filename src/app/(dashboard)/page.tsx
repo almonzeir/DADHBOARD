@@ -18,9 +18,17 @@ import { UserStatsCharts } from '@/components/analytics/user-stats-charts';
 import { OperationalInsightsCharts } from '@/components/analytics/operational-insights-charts';
 import ReportButton from '@/components/ReportButton';
 import { Button } from '@/components/ui/button';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue
+} from '@/components/ui/select';
 import { Download, Calendar, ArrowRight, Zap, Activity, TrendingUp, BarChart3, Loader2, Users, Target, Globe, Briefcase } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useState } from 'react';
+import { useReports } from '@/hooks/use-reports';
 
 import * as AnalyticsService from '@/services/analytics.service';
 
@@ -45,6 +53,13 @@ const stagger = {
 };
 
 export default function DashboardPage() {
+    // 1. DATE RANGE STATE
+    const [dateRange, setDateRange] = useState({
+        startDate: new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0],
+        endDate: new Date().toISOString().split('T')[0],
+        label: 'Last 30 Days'
+    });
+
     const {
         kpis,
         trends,
@@ -57,63 +72,32 @@ export default function DashboardPage() {
         psychographics,
         advancedStats,
         isLoading
-    } = useAnalyticsData();
+    } = useAnalyticsData({ startDate: dateRange.startDate, endDate: dateRange.endDate });
 
-    const [isGenerating, setIsGenerating] = useState(false);
+    const { generateExecutiveReport, isLoading: isGenerating } = useReports();
 
-    const handleExportReport = async () => {
-        try {
-            setIsGenerating(true);
-
-            // Dynamic imports to prevent SSR issues and keep bundle light
-            // This ensures heavy client-only packages don't crash the server build
-            const [
-                { pdf },
-                { saveAs },
-                { IntelligenceReport }
-            ] = await Promise.all([
-                import('@react-pdf/renderer'),
-                import('file-saver'),
-                import('@/components/reports/IntelligenceReport')
-            ]);
-
-            // 1. Fetch ALL data fresh (ensure we have the latest insights)
-            const [kpiData, statsData, advancedData] = await Promise.all([
-                AnalyticsService.getDashboardKPIs(),
-                AnalyticsService.getAiPerformanceStats(),
-                AnalyticsService.getAdvancedInsights()
-            ]);
-
-            // 2. Generate PDF Blob
-            const doc = <IntelligenceReport
-                data={kpiData}
-                stats={statsData}
-                advanced={advancedData}
-            />;
-
-            const blob = await pdf(doc).toBlob();
-
-            // 3. Save to User's Device
-            saveAs(blob, `MaiKedah_Intelligence_Report_${new Date().toISOString().split('T')[0]}.pdf`);
-        } catch (error) {
-            console.error('Failed to generate report:', error);
-        } finally {
-            setIsGenerating(false);
-        }
+    // Date Range Presets
+    const setRange = (days: number, label: string) => {
+        const end = new Date().toISOString().split('T')[0];
+        const start = new Date(new Date().setDate(new Date().getDate() - days)).toISOString().split('T')[0];
+        setDateRange({ startDate: start, endDate: end, label });
     };
 
     if (isLoading) {
         return (
-            <div className="space-y-8 p-2">
-                <div className="h-10 w-72 bg-slate-200 dark:bg-slate-800 rounded-lg animate-pulse" />
-                <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-                    {[1, 2, 3, 4, 5, 6].map((i) => (
-                        <Skeleton key={i} className="h-36 w-full rounded-xl bg-slate-200 dark:bg-slate-800" />
-                    ))}
+            <div className="space-y-8 p-6">
+                <div className="flex justify-between items-center">
+                    <Skeleton className="h-10 w-72 rounded-lg bg-slate-200 dark:bg-slate-800" />
+                    <Skeleton className="h-10 w-48 rounded-lg bg-slate-200 dark:bg-slate-800" />
+                </div>
+                <div className="grid gap-5 md:grid-cols-3">
+                    <Skeleton className="h-36 rounded-xl bg-slate-200 dark:bg-slate-800" />
+                    <Skeleton className="h-36 rounded-xl bg-slate-200 dark:bg-slate-800" />
+                    <Skeleton className="h-36 rounded-xl bg-slate-200 dark:bg-slate-800" />
                 </div>
                 <div className="grid gap-6 md:grid-cols-12">
-                    <Skeleton className="col-span-8 h-80 rounded-xl bg-slate-200 dark:bg-slate-800" />
-                    <Skeleton className="col-span-4 h-80 rounded-xl bg-slate-200 dark:bg-slate-800" />
+                    <Skeleton className="col-span-8 h-96 rounded-xl bg-slate-200 dark:bg-slate-800" />
+                    <Skeleton className="col-span-4 h-96 rounded-xl bg-slate-200 dark:bg-slate-800" />
                 </div>
             </div>
         );
@@ -126,7 +110,6 @@ export default function DashboardPage() {
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
                 className="flex flex-col md:flex-row md:items-center justify-between gap-4"
             >
                 <div>
@@ -139,193 +122,124 @@ export default function DashboardPage() {
                                 Mission Control
                             </h2>
                             <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">
-                                Real-time analytics • Live data from MaiKedah
+                                Showing data for {dateRange.label} ({dateRange.startDate} to {dateRange.endDate})
                             </p>
                         </div>
                     </div>
                 </div>
+
                 <div className="flex items-center gap-3">
-                    <Button
-                        variant="outline"
-                        className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 shadow-sm"
-                    >
-                        <Calendar className="mr-2 h-4 w-4" />
-                        Last 30 Days
-                    </Button>
+                    <Select onValueChange={(val) => {
+                        if (val === '7') setRange(7, 'Last 7 Days');
+                        if (val === '30') setRange(30, 'Last 30 Days');
+                        if (val === '90') setRange(90, 'Last 90 Days');
+                        if (val === '365') setRange(365, 'Last Year');
+                    }}>
+                        <SelectTrigger className="w-[180px] bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 shadow-sm">
+                            <Calendar className="mr-2 h-4 w-4 text-emerald-500" />
+                            <SelectValue placeholder={dateRange.label} />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="7">Last 7 Days</SelectItem>
+                            <SelectItem value="30">Last 30 Days</SelectItem>
+                            <SelectItem value="90">Last 90 Days</SelectItem>
+                            <SelectItem value="365">Last Year</SelectItem>
+                        </SelectContent>
+                    </Select>
+
                     <ReportButton />
                 </div>
             </motion.div>
 
             <div id="dashboard-container" className="space-y-6">
-
-                {/* ROW 1: The Pulse - KPI Cards */}
-                <motion.section
-                    initial="hidden"
-                    animate="show"
-                    variants={stagger}
-                >
-                    <motion.div variants={fadeIn} className="flex items-center gap-2 mb-4">
+                {/* Analytics Sections */}
+                <motion.section initial="hidden" animate="show" variants={stagger}>
+                    <div className="flex items-center gap-2 mb-4">
                         <Activity className="h-4 w-4 text-emerald-500" />
-                        <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                            The Pulse
-                        </h3>
-                    </motion.div>
+                        <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">The Pulse</h3>
+                    </div>
                     <AnalyticsKpiCards data={kpis} />
                 </motion.section>
 
-                {/* ROW 1.5: Operational Intelligence - Planning, Revenue, Discipline */}
-                <motion.section
-                    initial="hidden"
-                    animate="show"
-                    variants={stagger}
-                >
-                    <div className="flex items-center gap-2 mb-4">
-                        <Briefcase className="h-4 w-4 text-indigo-500" />
-                        <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                            Operational Intelligence
-                        </h3>
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+                    <div className="md:col-span-12">
+                        <div className="flex items-center gap-2 mb-4">
+                            <Briefcase className="h-4 w-4 text-indigo-500" />
+                            <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Operational Intelligence</h3>
+                        </div>
+                        <OperationalInsightsCharts data={operational} />
                     </div>
-                    <OperationalInsightsCharts />
-                </motion.section>
 
-                {/* ROW 2: Economic Intelligence - Super Wide */}
-                <motion.section
-                    initial="hidden"
-                    animate="show"
-                    variants={stagger}
-                >
-                    <motion.div variants={fadeIn} className="flex items-center gap-2 mb-4">
-                        <BarChart3 className="h-4 w-4 text-purple-500" />
-                        <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                            Economic Intelligence
-                        </h3>
-                    </motion.div>
-                    <motion.div variants={fadeIn} className="grid grid-cols-12 gap-6">
+                    <div className="md:col-span-8">
+                        <div className="flex items-center gap-2 mb-4">
+                            <BarChart3 className="h-4 w-4 text-purple-500" />
+                            <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Economic Intelligence</h3>
+                        </div>
                         <FinancialPerformanceChart data={financials} />
+                    </div>
+
+                    <div className="md:col-span-4">
+                        <div className="flex items-center gap-2 mb-4 opacity-0">.</div>
                         <PsychographicsRadar data={psychographics} />
-                    </motion.div>
-                </motion.section>
+                    </div>
+                </div>
 
-                {/* ROW 2.5: Safe Insights - Demographics, Value & Interests */}
-                <motion.section
-                    initial="hidden"
-                    animate="show"
-                    variants={stagger}
-                >
-                    <motion.div variants={fadeIn} className="flex items-center gap-2 mb-4">
-                        <Users className="h-4 w-4 text-cyan-500" />
-                        <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                            Safe Insights
-                        </h3>
-                    </motion.div>
-                    <motion.div variants={fadeIn}>
-                        <SafeInsightsCharts />
-                    </motion.div>
-                </motion.section>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <section>
+                        <div className="flex items-center gap-2 mb-4">
+                            <Users className="h-4 w-4 text-cyan-500" />
+                            <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Safe Insights</h3>
+                        </div>
+                        <SafeInsightsCharts data={safe} />
+                    </section>
+                    <section>
+                        <div className="flex items-center gap-2 mb-4">
+                            <Target className="h-4 w-4 text-rose-500" />
+                            <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Planning Intelligence</h3>
+                        </div>
+                        <MissingInsightsCharts data={missing} />
+                    </section>
+                </div>
 
-                {/* ROW 2.75: Missing Insights - Realism, Intensity & Geography */}
-                <motion.section
-                    initial="hidden"
-                    animate="show"
-                    variants={stagger}
-                >
-                    <motion.div variants={fadeIn} className="flex items-center gap-2 mb-4">
-                        <Target className="h-4 w-4 text-rose-500" />
-                        <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                            Planning Intelligence
-                        </h3>
-                    </motion.div>
-                    <motion.div variants={fadeIn}>
-                        <MissingInsightsCharts />
-                    </motion.div>
-                </motion.section>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="md:col-span-2">
+                        <NationalityChart data={nationalities} />
+                    </div>
+                    <div>
+                        <UserStatsCharts />
+                    </div>
+                </div>
 
-                {/* ROW 2.9: Global Reach - Nationality */}
-                <motion.section
-                    initial="hidden"
-                    animate="show"
-                    variants={stagger}
-                >
-                    <NationalityChart />
-                </motion.section>
-
-                {/* ROW 2.95: Traveler Profile - Age & Completion */}
-                <motion.section
-                    initial="hidden"
-                    animate="show"
-                    variants={stagger}
-                >
-                    <UserStatsCharts />
-                </motion.section>
-
-                {/* ROW 3: Traffic & Popularity */}
-                <motion.section
-                    initial="hidden"
-                    animate="show"
-                    variants={stagger}
-                >
-                    <motion.div variants={fadeIn} className="flex items-center gap-2 mb-4">
-                        <TrendingUp className="h-4 w-4 text-blue-500" />
-                        <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                            Traffic & Popularity
-                        </h3>
-                    </motion.div>
-                    <motion.div variants={fadeIn} className="grid gap-6 md:grid-cols-7">
+                <div className="grid grid-cols-1 md:grid-cols-7 gap-6">
+                    <div className="md:col-span-4">
                         <AnalyticsTrendChart data={trends} />
+                    </div>
+                    <div className="md:col-span-3">
                         <AnalyticsPlacesChart data={places} />
-                    </motion.div>
-                </motion.section>
+                    </div>
+                </div>
 
-                {/* ROW 4: Geographic & Spending Analysis */}
-                <motion.section
-                    initial="hidden"
-                    animate="show"
-                    variants={stagger}
-                >
-                    <motion.div variants={fadeIn} className="grid gap-6 md:grid-cols-7">
-                        <AnalyticsScatterChart data={scatter} />
-                        <AnalyticsDistrictRadar data={districts} />
-                    </motion.div>
-                </motion.section>
-
-                {/* ROW 5: Behavior Analytics - Deep Dive */}
-                <motion.section
-                    initial="hidden"
-                    animate="show"
-                    variants={stagger}
-                >
-                    <motion.div variants={fadeIn} className="grid gap-6 md:grid-cols-7">
-                        <AnalyticsBehaviorCharts
-                            budgetData={budgetTiers}
-                            paceData={tripPace}
-                            advancedStats={advancedStats}
-                        />
-                    </motion.div>
-                </motion.section>
-
-                {/* ROW 6: CTA Banner */}
+                {/* CTA Banner */}
                 <motion.section
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.5, duration: 0.5 }}
                 >
                     <div className="relative bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 rounded-2xl shadow-2xl shadow-purple-500/20 p-8 flex flex-col md:flex-row items-center justify-between text-white overflow-hidden">
-                        {/* Decorative blobs */}
                         <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 rounded-full bg-white opacity-5 blur-3xl" />
                         <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-60 h-60 rounded-full bg-white opacity-5 blur-3xl" />
 
                         <div className="z-10 mb-4 md:mb-0 text-center md:text-left">
-                            <h3 className="text-2xl font-bold mb-2">Deep Dive Report</h3>
+                            <h3 className="text-2xl font-bold mb-2">Agency High-Yield Report</h3>
                             <p className="text-indigo-100 max-w-md">
-                                Get AI-powered insights on visitor retention, spending habits, and predictive analytics.
+                                Generate the full 10-page strategic intelligence portfolio with financial leakage audits and regional traffic heatmaps.
                             </p>
                         </div>
                         <Button
-                            onClick={handleExportReport}
+                            onClick={() => generateExecutiveReport()}
                             disabled={isGenerating}
-                            className="z-10 bg-white text-indigo-600 hover:bg-indigo-50 font-bold border-none shadow-xl hover:shadow-2xl transition-all hover:scale-105"
+                            className="z-10 bg-white text-indigo-600 hover:bg-indigo-50 font-bold border-none shadow-xl hover:shadow-2xl transition-all hover:scale-105 px-8 h-12"
                         >
-                            {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Generate Full Report'}
+                            {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Power Report (Landscape PDF)'}
                             {!isGenerating && <ArrowRight className="ml-2 h-4 w-4" />}
                         </Button>
                     </div>

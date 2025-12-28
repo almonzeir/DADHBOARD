@@ -15,13 +15,7 @@ import {
 } from 'recharts';
 import { Target, Gauge, MapPin } from 'lucide-react';
 
-export function MissingInsightsCharts() {
-    const [extraStats, setExtraStats] = useState<any>(null);
-
-    useEffect(() => {
-        AnalyticsService.getMissingInsights().then(setExtraStats);
-    }, []);
-
+export function MissingInsightsCharts({ data: extraStats }: { data: any }) {
     if (!extraStats) {
         return (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
